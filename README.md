@@ -1,6 +1,6 @@
 # earth
 <details><summary>Hello, World!</summary> 
-<pre><code>
+<code>
 1850, Rudolph ClausiusGerman mathematical physicist who formulated the second law of thermodynamics,
 which also known as The Law Of Entropy Generation.
 
@@ -18,5 +18,5 @@ I read some good Chinese sentences：
 to increase.Musk is being the richest man on Earth and preparing to land on Mars.
                                                                                                   From December,31st,2021
                                                                                                   
-</code></pre>
+</code>
 </details>
