@@ -1,4 +1,3 @@
-# earth
 <details><summary>Hello, World!</summary> 
 <code><pre>  
 1850, Rudolph ClausiusGerman mathematical physicist who formulated the second law of thermodynamics,
