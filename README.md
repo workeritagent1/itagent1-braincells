@@ -11,7 +11,7 @@ I read some good Chinese sentences：
     2.高欢闻之，勉坐见诸贵，使斛律金作《敕勒歌》，欢自和之，哀感流涕。【敕勒川，阴山下。天似穹庐，笼盖四野。天苍苍，野茫茫，风吹草低见牛羊】。
     3.庾信《枯树赋》：殷仲文风流儒雅，海内知名。世异时移，出为东阳太守。常忽忽不乐，顾庭槐而叹曰：“此树婆娑，生意尽矣！
   this year,the novel Coronavirus pandemic continues to grip the world, and the pressure on ordinary people continues
-to increase.Musk is being the richest man on Earth and preparing to land on Mars.
+to increase.Musk has become the richest man in the world and is preparing to land on Mars.
                                                                                                   From December,31st,2021
 </pre></code>
 </details>
