@@ -1,14 +1,11 @@
 # earth
 <details><summary>Hello, World!</summary> 
-<code>
+<code><pre>  
 1850, Rudolph ClausiusGerman mathematical physicist who formulated the second law of thermodynamics,
 which also known as The Law Of Entropy Generation.
-
 1921,the Communist Party of China was founded.
-
 2009,The first Bitcoin protocol and proof of concept was published in a Whitepaper by a shadowy individual
 or group under the pseudonym Satoshi Nakamoto. 
-
 2021,this year,I'm tired of working overtime,I buy the book:  Artificail Intelligence,A modern Approach.
 I read some good Chinese sentences：
     1.范缜曰：人生如树花同发，随风而散；或拂帘幌坠茵席之上，或关篱墙落粪溷之中。
@@ -17,6 +14,5 @@ I read some good Chinese sentences：
   this year,the novel Coronavirus pandemic continues to grip the world, and the pressure on ordinary people continues
 to increase.Musk is being the richest man on Earth and preparing to land on Mars.
                                                                                                   From December,31st,2021
-                                                                                                  
-</code>
+</pre></code>
 </details>
