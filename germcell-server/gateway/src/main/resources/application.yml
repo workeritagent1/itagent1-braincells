@@ -1,0 +1,30 @@
+server:
+  port: 8000
+  servlet:
+    context-path: /gateway
+spring:
+  application:
+    name: germcell-gateway
+  main:
+    # 【spring-boot-starter-webflux】 和 springboot作为web项目启动必不可少的 【spring-boot-starter-web】 出现冲突。
+    web-application-type: reactive
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848  # 指定nacos地址
+    gateway:
+      routes:
+        - id: admin
+          uri: lb://admin
+          predicates:
+            - Method=GET,POST,PUT,DELETE
+            - Path=${server.servlet.context-path}/admin/**   #${server.servlet.context-path}=/gateway
+            #- Path=/admin/{segment}
+          # 当且仅当访问以/map-api/开头的路径才转发
+          filters:
+            # 转发时忽略第一段/map-api路由
+            - StripPrefix=1
+  # 相当于访问http://localhost:10000/germcell-gateway/admin/echo/hello 转发到http://localhost:8000/echo/hello
+logging:
+  level:
+    root: debug

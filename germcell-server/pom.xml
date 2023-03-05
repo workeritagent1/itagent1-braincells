@@ -8,24 +8,86 @@
         <version>3.0.2</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
+
     <groupId>org.worker</groupId>
     <artifactId>itagent1-germcell</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>itagent1-germcell</name>
     <description>project for all man free from surviving and material well-being life</description>
+    <!--修改父项目的打包方式为pom-->
+    <packaging>pom</packaging>
+
+    <!--添加子模块到父项目-->
+    <modules>
+        <module>admin</module>
+        <module>gateway</module>
+    </modules>
+
+    <!--依赖版本统一管理-->
     <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>17</java.version>
+        <spring.cloud.version>2022.0.1</spring.cloud.version>
+        <spring.cloud.alibaba.version>2022.0.0.0-RC1</spring.cloud.alibaba.version>
+        <spring.cloud.alibaba.sentinel.version>1.8.6</spring.cloud.alibaba.sentinel.version>
     </properties>
+
+    <dependencyManagement>
+        <!-- 假设您使用的是 Spring Cloud Alibaba bom，相关 starter 依赖将不包含版本号。-->
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring.cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.alibaba.cloud</groupId>
+                <artifactId>spring-cloud-alibaba-dependencies</artifactId>
+                <version>${spring.cloud.alibaba.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <!--父项目这里的依赖可以用到子项目的 通用的-->
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
+        </dependency>
+
+        <!-- Spring Boot Actuator 模块提供了生产级别的功能，比如健康检查，审计，指标收集，
+       HTTP 跟踪等，帮助我们监控和管理Spring Boot 应用 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <!-- 服务注册与发现 -->
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
+        </dependency>
+        <!-- Sentinel 降级和熔断-->
+        <!-- 服务端集成Sentinel -->
+        <dependency>
+            <groupId>com.alibaba.csp</groupId>
+            <artifactId>sentinel-core</artifactId>
+            <version>${spring.cloud.alibaba.sentinel.version}</version>
+        </dependency>
+        <!-- 服务端集成到Sentinel控制台 -->
+        <dependency>
+            <groupId>com.alibaba.csp</groupId>
+            <artifactId>sentinel-transport-simple-http</artifactId>
+            <version>${spring.cloud.alibaba.sentinel.version}</version>
         </dependency>
     </dependencies>
 
