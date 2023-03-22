@@ -11,7 +11,7 @@ spring:
   cloud:
     nacos:
       discovery:
-        server-addr: 127.0.0.1:8848  # 指定nacos地址
+        server-addr: 192.168.183.131:8848  # 指定nacos地址
     gateway:
       routes:
         - id: admin
@@ -19,12 +19,14 @@ spring:
           predicates:
             - Method=GET,POST,PUT,DELETE
             - Path=${server.servlet.context-path}/admin/**   #${server.servlet.context-path}=/gateway
+#            - Path=/gateway/**   #${server.servlet.context-path}=/gateway
             #- Path=/admin/{segment}
           # 当且仅当访问以/map-api/开头的路径才转发
           filters:
             # 转发时忽略第一段/map-api路由
             - StripPrefix=1
-  # 相当于访问http://localhost:10000/braincells-gateway/admin/echo/hello 转发到http://localhost:8000/echo/hello
+  # 相当于访问http://localhost:10000/gateway/admin/echo/hello 转发到http://localhost:8000/echo/hello
 logging:
   level:
-    root: debug
+    root: info
+#    root: debug

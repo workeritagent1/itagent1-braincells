@@ -4,9 +4,10 @@ management:
       exposure:
         include: '*'
 server:
-  port: 8002
+  port: 8001
   servlet:
     context-path: /admin
+#    context-path: /
 spring:
   application:
     name: admin
@@ -14,4 +15,4 @@ spring:
     nacos:
       discovery:
         #server-addr: 127.0.0.1:8848
-        server-addr: 192.168.79.1:8848
+        server-addr: 192.168.183.131:8848
