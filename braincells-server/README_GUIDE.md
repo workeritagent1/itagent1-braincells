@@ -33,3 +33,30 @@
 | ideaIU-2022.3.3.exe激活码                                           | https://www.ajihuo.com/                                                                                                                                |----------------------|
 | docker 安装mysql                                                   | https://blog.csdn.net/evak_/article/details/118785468 <br/> sudo docker run -p 3306:3306 --name mysql5.7_bc -e MYSQL_ROOT_PASSWORD=dev123 -d mysql:5.7 |----------------------|
 | docker 安装redis                                                   | https://cloud.tencent.com/developer/article/1670205 <br/> sudo docker run -p 6379:6379 --name redis -v /data/redis/redis.conf:/etc/redis/redis.conf  -v /data/redis/data:/data -d redis redis-server /etc/redis/redis.conf --appendonly yes |----------------------|
+| redis不能被外部ip访问                                                   | https://blog.csdn.net/dwwwwww/article/details/113820794 <br/> sudo docker run -p 6379:6379 --name redis -v /data/redis/redis.conf:/etc/redis/redis.conf  -v /data/redis/data:/data -d redis redis-server /etc/redis/redis.conf --appendonly yes |----------------------|
+| idea配置类注释和方法注释                                                   | https://www.zhihu.com/question/507225066 |----------------------|
+
+## 类注释和方法注释模板
+```
+/**
+ * @ClassName ${NAME}
+ * @description: 
+ * @author itagent1.worker
+ * @date ${DATE} ${TIME}
+ * @version 1.0
+ */
+ 
+ /** 
+ * @description: $description$ 
+ * @param: $params$ 
+ * @return: $returns$ 
+ * @author itagent1.worker
+ * @date: $date$ $time$
+ */
+```
+# 重要命令
+| 命令                                                                                     ||
+|----------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------|
+| git添加所有文件再提交: git add --all                                                            |  |
+| 生产jwt.jks密钥命令(我绑定的密码时dev123): keytool -genkey -alias jwt -keyalg RSA -keystore jwt.jks | https://www.macrozheng.com/cloud/gateway_oauth2.html#micro-oauth2-auth |
+
