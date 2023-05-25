@@ -26,6 +26,22 @@ spring:
             # 转发时忽略第一段/map-api路由
             - StripPrefix=1
   # 相当于访问http://localhost:10000/gateway/admin/echo/hello 转发到http://localhost:8000/echo/hello
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: 'http://localhost:9401/rsa/publicKey' #配置RSA的公钥访问地址
+  data:
+    redis:
+      database: 0
+      port: 6379
+      host: 192.168.183.131
+      password: dev123
+secure:
+  ignore:
+    urls: #配置白名单路径
+      - "/actuator/**"
+      - "/auth/oauth/token"
 logging:
   level:
     root: info

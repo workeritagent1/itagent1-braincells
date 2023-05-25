@@ -1,13 +1,13 @@
 # 软件包下载地址
-|软件包名称      |软件包官方版本查询和下载地址|  软件官方参考文档地址|
-|----------------|----------------------------|----------------------|
-|JDK17    |	https://www.oracle.com/java/technologies/downloads/#jdk17-windows    |   |
-|Spring Cloud     |https://github.com/spring-cloud/spring-cloud-release/wiki    |    https://cloud.spring.io/  |
-|Spring Cloud Alibaba | https://github.com/alibaba/spring-cloud-alibaba <br/> https://github.com/alibaba/spring-cloud-alibaba/blob/2022.x/README-zh.md <br/> https://github.com/alibaba/spring-cloud-alibaba/wiki/版本说明 | https://spring.io/projects/spring-cloud-alibaba#learn  <br/> https://spring-cloud-alibaba-group.github.io/github-pages/2021/zh-cn/index.html <br/> https://spring-cloud-alibaba-group.github.io/github-pages/2021/en-us/index.html| 
-|nacos            |  https://nacos.io/zh-cn/index.html      | https://github.com/alibaba/nacos  |
-|Spring Cloud + Spring Cloud Alibaba + nacos 版本组合参考      |  https://github.com/alibaba/spring-cloud-alibaba/wiki/版本说明   |   |
-|springboot            |  https://spring.io/projects/spring-boot     |   |
-|Sentinel            |  https://sentinelguard.io/zh-cn/     | https://sentinelguard.io/zh-cn/docs/quick-start.html  |
+| 软件包名称                                              |软件包官方版本查询和下载地址|  软件官方参考文档地址|
+|----------------------------------------------------|----------------------------|----------------------|
+| JDK8                                               |	    |   |
+| Spring Cloud                                       |https://github.com/spring-cloud/spring-cloud-release/wiki    |    https://cloud.spring.io/  |
+| Spring Cloud Alibaba                               | https://github.com/alibaba/spring-cloud-alibaba <br/> https://github.com/alibaba/spring-cloud-alibaba/blob/2022.x/README-zh.md <br/> https://github.com/alibaba/spring-cloud-alibaba/wiki/版本说明 | https://spring.io/projects/spring-cloud-alibaba#learn  <br/> https://spring-cloud-alibaba-group.github.io/github-pages/2021/zh-cn/index.html <br/> https://spring-cloud-alibaba-group.github.io/github-pages/2021/en-us/index.html| 
+| nacos                                              |  https://nacos.io/zh-cn/index.html      | https://github.com/alibaba/nacos  |
+| Spring Cloud + Spring Cloud Alibaba + nacos 版本组合参考 |  https://github.com/alibaba/spring-cloud-alibaba/wiki/版本说明   |   |
+| springboot                                         |  https://spring.io/projects/spring-boot     |   |
+| Sentinel                                           |  https://sentinelguard.io/zh-cn/     | https://sentinelguard.io/zh-cn/docs/quick-start.html  |
 # 启动步骤和命令
 |步骤     | 启动                                                                                            |  备注|
 |----------------|-----------------------------------------------------------------------------------------------|----------------------|
@@ -35,6 +35,8 @@
 | docker 安装redis                                                   | https://cloud.tencent.com/developer/article/1670205 <br/> sudo docker run -p 6379:6379 --name redis -v /data/redis/redis.conf:/etc/redis/redis.conf  -v /data/redis/data:/data -d redis redis-server /etc/redis/redis.conf --appendonly yes |----------------------|
 | redis不能被外部ip访问                                                   | https://blog.csdn.net/dwwwwww/article/details/113820794 <br/> sudo docker run -p 6379:6379 --name redis -v /data/redis/redis.conf:/etc/redis/redis.conf  -v /data/redis/data:/data -d redis redis-server /etc/redis/redis.conf --appendonly yes |----------------------|
 | idea配置类注释和方法注释                                                   | https://www.zhihu.com/question/507225066 |----------------------|
+| ubuntu客户机访问win11宿主机ping不通，关闭win11防火墙即可                           | |----------------------|
+| ubuntu安装openjdk8                                                 | sudo apt-get install openjdk-8-jre|----------------------|
 
 ## 类注释和方法注释模板
 ```
@@ -55,8 +57,10 @@
  */
 ```
 # 重要命令
-| 命令                                                                                     ||
-|----------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------|
-| git添加所有文件再提交: git add --all                                                            |  |
-| 生产jwt.jks密钥命令(我绑定的密码时dev123): keytool -genkey -alias jwt -keyalg RSA -keystore jwt.jks | https://www.macrozheng.com/cloud/gateway_oauth2.html#micro-oauth2-auth |
+| 命令                                                                                              ||
+|-------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------|
+| git添加所有文件再提交: git add --all                                                                     |  |
+| 生产jwt.jks密钥命令(我绑定的密码时dev123),默认有效期90天: keytool -genkey -alias jwt -keyalg RSA -keystore jwt.jks | https://www.macrozheng.com/cloud/gateway_oauth2.html#micro-oauth2-auth |
+| Cannot find module 'D:\WorkSpace\youlai\mall-admin\node_modules\vite\bin\vite.js'               |  |
 
+keytool -genkey -alias jwt -keyalg RSA -keypass dev123 -keystore jwt.jks -storepass dev123

@@ -47,4 +47,5 @@ springboot + springcloud + spring cloud alibaba+nacos版本不符的问题
     https://github.com/alibaba/spring-cloud-alibaba/wiki/%E7%89%88%E6%9C%AC%E8%AF%B4%E6%98%8E
 ```
 
+# 不要用什么最新版，当小白鼠，太浪费事件时间。
 
