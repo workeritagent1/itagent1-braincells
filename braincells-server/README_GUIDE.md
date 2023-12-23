@@ -1,13 +1,14 @@
 # 软件包下载地址
-| 软件包名称                                              |软件包官方版本查询和下载地址|  软件官方参考文档地址|
-|----------------------------------------------------|----------------------------|----------------------|
-| JDK8                                               |	    |   |
-| Spring Cloud                                       |https://github.com/spring-cloud/spring-cloud-release/wiki    |    https://cloud.spring.io/  |
+| 软件包名称                                              | 软件包官方版本查询和下载地址                                                                                                                                                                                 |  软件官方参考文档地址|
+|----------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------|
+| JDK8                                               | https://www.oracle.com/java/technologies/javase/javase8u211-later-archive-downloads.html  <br/> 使用bing搜索oracle免费账号登录下载                                                                         |   |
+| Spring Cloud                                       | https://github.com/spring-cloud/spring-cloud-release/wiki                                                                                                                                      |    https://cloud.spring.io/  |
 | Spring Cloud Alibaba                               | https://github.com/alibaba/spring-cloud-alibaba <br/> https://github.com/alibaba/spring-cloud-alibaba/blob/2022.x/README-zh.md <br/> https://github.com/alibaba/spring-cloud-alibaba/wiki/版本说明 | https://spring.io/projects/spring-cloud-alibaba#learn  <br/> https://spring-cloud-alibaba-group.github.io/github-pages/2021/zh-cn/index.html <br/> https://spring-cloud-alibaba-group.github.io/github-pages/2021/en-us/index.html| 
-| nacos                                              |  https://nacos.io/zh-cn/index.html      | https://github.com/alibaba/nacos  |
-| Spring Cloud + Spring Cloud Alibaba + nacos 版本组合参考 |  https://github.com/alibaba/spring-cloud-alibaba/wiki/版本说明   |   |
-| springboot                                         |  https://spring.io/projects/spring-boot     |   |
-| Sentinel                                           |  https://sentinelguard.io/zh-cn/     | https://sentinelguard.io/zh-cn/docs/quick-start.html  |
+| nacos                                              | https://nacos.io/zh-cn/index.html                                                                                                                                                              | https://github.com/alibaba/nacos  |
+| Spring Cloud + Spring Cloud Alibaba + nacos 版本组合参考 | https://github.com/alibaba/spring-cloud-alibaba/wiki/版本说明                                                                                                                                      |   |
+| springboot                                         | https://spring.io/projects/spring-boot                                                                                                                                                         |   |
+| Sentinel                                           | https://sentinelguard.io/zh-cn/                                                                                                                                                                | https://sentinelguard.io/zh-cn/docs/quick-start.html  |
+| Maven Repository: Central                          | https://mvnrepository.com/repos/central                                                                                                                                                               | https://sentinelguard.io/zh-cn/docs/quick-start.html  |
 # 启动步骤和命令
 |步骤     | 启动                                                                                            |  备注|
 |----------------|-----------------------------------------------------------------------------------------------|----------------------|
@@ -57,10 +58,18 @@
  */
 ```
 # 重要命令
-| 命令                                                                                              ||
-|-------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------|
-| git添加所有文件再提交: git add --all                                                                     |  |
-| 生产jwt.jks密钥命令(我绑定的密码时dev123),默认有效期90天: keytool -genkey -alias jwt -keyalg RSA -keystore jwt.jks | https://www.macrozheng.com/cloud/gateway_oauth2.html#micro-oauth2-auth |
-| Cannot find module 'D:\WorkSpace\youlai\mall-admin\node_modules\vite\bin\vite.js'               |  |
+| 命令                                                                                                                                               ||
+|--------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------|
+| git添加所有文件再提交: git add --all                                                                                                                      |  |
+| 生产jwt.jks密钥命令【keytool -genkeypair -alias jwt -keyalg RSA -keysize 2048 -validity 1200 -keypass Wabc@2023 -keystore jwt.jks -storepass Wabc@2023】 | https://www.macrozheng.com/cloud/gateway_oauth2.html#micro-oauth2-auth |
+| Cannot find module 'D:\WorkSpace\youlai\mall-admin\node_modules\vite\bin\vite.js'                                                                |  |
 
 keytool -genkey -alias jwt -keyalg RSA -keypass dev123 -keystore jwt.jks -storepass dev123
+
+# 相关服务划分：
+```
+micro-oauth2-gateway：网关服务，负责请求转发和鉴权功能，整合Spring Security+Oauth2；OAuth2资源服务器是提供给客户端资源的服务器，有验证token的能力，token有效则放开资源，
+micro-oauth2-auth：Oauth2认证服务，负责对登录用户进行认证，整合Spring Security+Oauth2；
+micro-oauth2-api：受保护的API服务，用户鉴权通过后可以访问该服务，不整合Spring Security+Oauth2。
+包名称：wabc ==> worker agent brain cell 
+```

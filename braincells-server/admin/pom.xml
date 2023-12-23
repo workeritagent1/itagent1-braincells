@@ -5,7 +5,7 @@
     <!--引入父项目 替换掉之前的springboot父项目（spring-boot-starter-parent）-->
     <parent>
         <groupId>org.worker</groupId>
-        <artifactId>itagent1-braincell</artifactId>
+        <artifactId>braincell-server</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 

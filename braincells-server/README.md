@@ -49,3 +49,10 @@ springboot + springcloud + spring cloud alibaba+nacos版本不符的问题
 
 # 不要用什么最新版，当小白鼠，太浪费事件时间。
 
+##
+```
+2023-12-23 19:00 [authorization]模块单独启动成功
+启用数据库服务
+nacos-server-2.2.0\nacos\bin>startup.cmd -m standalone
+AuthorizationApplication.java
+```

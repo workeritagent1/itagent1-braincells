@@ -2,36 +2,40 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.7.8</version>
-        <relativePath/> <!-- lookup parent from repository -->
-    </parent>
 
-    <groupId>org.worker</groupId>
-    <artifactId>itagent1-braincell</artifactId>
+    <groupId>org.wabc</groupId>
+    <artifactId>braincell-server</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>itagent1-germcell</name>
     <description>project for all man free from surviving and material well-being life</description>
-    <!--修改父项目的打包方式为pom-->
+<!--   <packaging>pom</packaging> 指定了 Maven 项目的打包方式为 "pom"，这表示该项目不会生成可执行的 JAR 或 WAR 文件，
+    而是作为一个纯粹的 Maven 项目对象模型 (POM) 文件存在。这通常用于父项目或聚合项目，用于管理子模块的依赖和构建配置。-->
     <packaging>pom</packaging>
 
     <!--添加子模块到父项目-->
     <modules>
         <module>admin</module>
         <module>gateway</module>
+        <module>authorization</module>
     </modules>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.7.18</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
 
     <!--依赖版本统一管理-->
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
-        <spring-boot.version>2.7.8</spring-boot.version>
+        <spring-boot.version>2.7.18</spring-boot.version>
         <!-- spring cloud -->
         <spring-cloud.version>2021.0.5</spring-cloud.version>
-        <spring-cloud-alibaba.version>2021.1</spring-cloud-alibaba.version>
+        <spring-cloud-alibaba.version>2021.0.5.0</spring-cloud-alibaba.version>
+        <!-- Sentinel Version:1.8.6 Nacos Version:2.2.0  -->
 
         <hutool.version>5.8.5</hutool.version>
         <nimbus-jose-jwt.version>9.16.1</nimbus-jose-jwt.version>
@@ -57,6 +61,10 @@
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-dependencies</artifactId>
                 <version>${spring-cloud.version}</version>
+                <!--
+                    <type>pom</type> 表示依赖的类型为 "pom"，意味着这个依赖项实际上是一个 Maven 项目对象模型 (POM) 文件，而不是一个 JAR 文件或其他类型的构建文件。
+                    <scope>import</scope> 表示依赖的范围为 "import"，这种依赖声明通常用于在 Maven 的 <dependencyManagement> 中引入其他项目的依赖管理信息，以便统一管理项目的依赖版本
+                。-->
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -77,6 +85,12 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-oauth2-server</artifactId>
+            </dependency>
+
 
             <!-- JWT工具 -->
             <dependency>
@@ -103,11 +117,6 @@
                 <artifactId>mybatis-plus-generator</artifactId>
                 <version>${mybatis-plus.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.apache.velocity</groupId>
-                <artifactId>velocity-engine-core</artifactId>
-                <version>2.3</version>
-            </dependency>
 
             <!-- 分布式锁 -->
             <dependency>
@@ -116,37 +125,7 @@
                 <version>${redisson.version}</version>
             </dependency>
 
-
             <!-- Swagger 3.0.0 相关依赖 -->
-            <dependency>
-                <groupId>io.springfox</groupId>
-                <artifactId>springfox-boot-starter</artifactId>
-                <version>3.0.0</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.github.xiaoymin</groupId>
-                <artifactId>knife4j-spring-boot-starter</artifactId>
-                <version>${knife4j.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.github.xiaoymin</groupId>
-                <artifactId>knife4j-micro-spring-boot-starter</artifactId>
-                <version>${knife4j.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.github.xiaoymin</groupId>
-                <artifactId>knife4j-spring-ui</artifactId>
-                <version>${knife4j.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>io.swagger</groupId>
-                <artifactId>swagger-annotations</artifactId>
-                <version>${swagger.version}</version>
-            </dependency>
 
         </dependencies>
     </dependencyManagement>
@@ -164,10 +143,16 @@
             <version>${hutool.version}</version>
         </dependency>
 
-        <!-- 注册中心 -->
+        <!-- nacos相关以来；不显式声明版本好，直接依赖com.alibaba.cloud版本确定
+          注册中心 -->
         <dependency>
             <groupId>com.alibaba.cloud</groupId>
             <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
+        </dependency>
+        <!-- 配置中心 -->
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
         </dependency>
 
         <dependency>
@@ -175,13 +160,19 @@
             <artifactId>spring-cloud-starter-loadbalancer</artifactId>
         </dependency>
 
-        <!-- 配置中心 -->
+        <!-- JUnit 5 -->
         <dependency>
-            <groupId>com.alibaba.cloud</groupId>
-            <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>5.8.2</version>
+            <scope>test</scope>
         </dependency>
-
-
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>5.8.2</version>
+            <scope>test</scope>
+        </dependency>
 
     </dependencies>
 

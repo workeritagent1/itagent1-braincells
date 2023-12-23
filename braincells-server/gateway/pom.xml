@@ -4,18 +4,17 @@
     <modelVersion>4.0.0</modelVersion>
     <!--引入父项目 替换掉之前的springboot父项目（spring-boot-starter-parent）-->
     <parent>
-        <groupId>org.worker</groupId>
-        <artifactId>itagent1-braincell</artifactId>
+        <groupId>org.wabc</groupId>
+        <artifactId>braincell-server</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
-    <groupId>org.worker.itagent1</groupId>
+    <groupId>org.wabc</groupId>
     <artifactId>gateway</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>gateway</name>
     <description>gateway</description>
     <properties>
-        <java.version>17</java.version>
-        <skipTests>true</skipTests>
+        <java.version>8</java.version>
     </properties>
     <dependencies>
         <!--gateway依赖 -->
@@ -23,7 +22,7 @@
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-gateway</artifactId>
         </dependency>
-        <!--alibaba在2020版之后不使用ribbon,这里使用loadbalancer代替,然后在配置文件中禁用ribbon
+        <!-- alibaba在2020版之后不使用ribbon,这里使用loadbalancer代替,然后在配置文件中禁用ribbon
            预防Service Unavailable, status=503错误
         -->
         <dependency>
@@ -31,10 +30,20 @@
             <artifactId>spring-cloud-starter-loadbalancer</artifactId>
         </dependency>
 
+        <!-- OAuth2资源服务器-->
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-config</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-oauth2-resource-server</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-oauth2-jose</artifactId>
+        </dependency>
+
         <!-- redis -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
