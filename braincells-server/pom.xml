@@ -14,9 +14,10 @@
 
     <!--添加子模块到父项目-->
     <modules>
-        <module>admin</module>
+        <module>system</module>
         <module>gateway</module>
         <module>authorization</module>
+        <module>oauth2-demo</module>
     </modules>
 
     <parent>
@@ -44,6 +45,8 @@
         <mysql.version>8.0.19</mysql.version>
         <druid.version>1.2.4</druid.version>
         <mybatis-plus.version>3.5.1</mybatis-plus.version>
+        <velocity-engine.version>2.3</velocity-engine.version>
+        <knife4j-openapi3-spring.version>4.3.0</knife4j-openapi3-spring.version>
 
         <!-- api doc -->
         <knife4j.version>2.0.9</knife4j.version>
@@ -86,11 +89,11 @@
                 <scope>import</scope>
             </dependency>
 
+            <!-- oauth2 -->
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-oauth2-server</artifactId>
             </dependency>
-
 
             <!-- JWT工具 -->
             <dependency>
@@ -117,6 +120,12 @@
                 <artifactId>mybatis-plus-generator</artifactId>
                 <version>${mybatis-plus.version}</version>
             </dependency>
+            <!-- Velocity 模板引擎 -->
+            <dependency>
+                <groupId>org.apache.velocity</groupId>
+                <artifactId>velocity-engine-core</artifactId>
+                <version>${velocity-engine.version}</version>
+            </dependency>
 
             <!-- 分布式锁 -->
             <dependency>
@@ -142,6 +151,12 @@
             <artifactId>hutool-all</artifactId>
             <version>${hutool.version}</version>
         </dependency>
+        <!-- knife4j openapi3 接口文档 -->
+        <dependency>
+            <groupId>com.github.xiaoymin</groupId>
+            <artifactId>knife4j-openapi3-spring-boot-starter</artifactId>
+            <version>${knife4j-openapi3-spring.version}</version>
+        </dependency>
 
         <!-- nacos相关以来；不显式声明版本好，直接依赖com.alibaba.cloud版本确定
           注册中心 -->
@@ -155,10 +170,16 @@
             <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
         </dependency>
 
+        <!-- openfeign依赖 1. http客户端选择okhttp 2. loadbalancer替换ribbon -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-loadbalancer</artifactId>
         </dependency>
+
 
         <!-- JUnit 5 -->
         <dependency>

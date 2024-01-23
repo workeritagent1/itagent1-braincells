@@ -1,0 +1,40 @@
+## 与spring-boot-starter-actuator结合使用，监控服务
+##
+#management:
+#  endpoints:
+#    web:
+#      exposure:
+#        include: '*'
+# spring-doc 接口文档
+springdoc:
+  api-docs:
+    enabled: true # 是否启用接口文档
+knife4j:
+  enable: true # 是否启用 knife4j 增强,如果只是使用 knife4j 的 UI,则可以关闭
+server:
+  port: 8001
+  servlet:
+    context-path: /system
+spring:
+  application:
+    name: system
+  cloud:
+    nacos:
+      config:
+        import-check:
+          enabled: false
+        server-addr: 127.0.0.1:8848
+#        server-addr: 192.168.183.131:8848
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://192.168.182.131:3306/wabc?useSSL=true&useUnicode=true&characterEncoding=utf-8&serverTimezone=UTC
+    username: root
+    password: dev123
+  data:
+    redis:
+      database: 0
+      port: 6379
+      host: 192.168.183.131
+      password: dev123

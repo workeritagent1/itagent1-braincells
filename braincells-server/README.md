@@ -39,6 +39,8 @@ nacos   https://nacos.io/zh-cn/docs/quick-start.html
 ```
 
 
+
+
 # 问题清单
 ```
 IDEA Unable to import maven project: See logs for details具体解决方法
@@ -56,3 +58,28 @@ springboot + springcloud + spring cloud alibaba+nacos版本不符的问题
 nacos-server-2.2.0\nacos\bin>startup.cmd -m standalone
 AuthorizationApplication.java
 ```
+http://localhost:10000/apigateway/authorization/oauth/token?client_id=client_id_01&client_secret=$10$ExMtq3Z1FPp6nD62uf//AuDXLU.OYHP5AOtvX14WzeiiCM2kVld3.&grant_type=password&username=admin&password=123456
+
+http://localhost:8002/authorization/oauth/token?client_id=client_id_01&client_secret=$10$ExMtq3Z1FPp6nD62uf//AuDXLU.OYHP5AOtvX14WzeiiCM2kVld3.&grant_type=password&username=admin&password=123456
+
+http://localhost:8001/system/
+
+
+https://youlai.blog.csdn.net/article/details/108758828
+
+https://www.cnblogs.com/haoxianrui/p/13719356.html
+
+
+1.A页面，点击按钮，生成一个授权请求，重定向到B的授权端点-（授权端点跳转到登录页面）
+2.用户在B页面登录（携带A的重定向信息），B页面询问是否授权A获取个人资料。
+3.用户同意后，B生成授权码，返回给A的重定向url.
+4.A使用授权码、客户端标识、秘钥等参数，POST请求发给B的令牌端点。
+5.B验证授权码和标识的有效性，颁发令牌给A.
+6.A使用令牌代表用户请求B受保护的资源访问，B验证令牌并根据权限授权拒绝或同意对资源的访问。
+
+
+那么，OAuth2 资源服务器结合 JWT 的作用是什么呢？
+
+身份验证：资源服务器使用 JWT 来验证请求中的访问令牌。它会对令牌进行解析，并检查签名和有效期等信息，以确保令牌的可信度和有效性。
+授权访问：JWT 中的负载部分可以包含用户的权限信息。资源服务器使用这些信息来控制对受保护资源的访问权限，确保只有具有适当权限的用户能够访问。
+通过结合 OAuth2 资源服务器和 JWT，我们可以实现对受限资源的安全保护和访问控制。OAuth2 提供了授权机制和流程，而 JWT 提供了一种可靠的身份验证和授权数据传输方式。

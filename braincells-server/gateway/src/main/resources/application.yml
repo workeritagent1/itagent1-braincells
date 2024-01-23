@@ -1,47 +1,52 @@
 server:
-  port: 8000
+  port: 10000
   servlet:
     context-path: /gateway
 spring:
   application:
-    name: braincells-gateway
+    name: gateway
   main:
     # 【spring-boot-starter-webflux】 和 springboot作为web项目启动必不可少的 【spring-boot-starter-web】 出现冲突。
     web-application-type: reactive
   cloud:
     nacos:
-      discovery:
-        server-addr: 192.168.183.131:8848  # 指定nacos地址
+      config:
+        import-check:
+          enabled: false
+        server-addr: 127.0.0.1:8848
+        # server-addr: 192.168.183.131:8848  # 指定nacos地址
     gateway:
+      #   # 相当于访问http://localhost:10000/gateway/authorization/echo/hello 转发到http://localhost:8000/authorization/echo/hello
       routes:
-        - id: admin
-          uri: lb://admin
+        - id: authorization
+          uri: lb://authorization
           predicates:
-            - Method=GET,POST,PUT,DELETE
-            - Path=${server.servlet.context-path}/admin/**   #${server.servlet.context-path}=/gateway
-#            - Path=/gateway/**   #${server.servlet.context-path}=/gateway
-            #- Path=/admin/{segment}
-          # 当且仅当访问以/map-api/开头的路径才转发
+            - Path=/apigateway/authorization/**
           filters:
-            # 转发时忽略第一段/map-api路由
-            - StripPrefix=1
-  # 相当于访问http://localhost:10000/gateway/admin/echo/hello 转发到http://localhost:8000/echo/hello
+            - RewritePath=/apigateway/(?<remaining>.*), /$\{remaining}
+        - id: system
+          uri: lb://system
+          predicates:
+            - Path=/apigateway/system/**
+          filters:
+            - RewritePath=/apigateway/(?<remaining>.*), /$\{remaining}
+
+  ##配置RSA的公钥访问地址
   security:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: 'http://localhost:9401/rsa/publicKey' #配置RSA的公钥访问地址
+          jwk-set-uri: 'http://localhost:8002/authorization/oauth/public-key'
+
   data:
     redis:
       database: 0
       port: 6379
       host: 192.168.183.131
       password: dev123
-secure:
-  ignore:
-    urls: #配置白名单路径
-      - "/actuator/**"
-      - "/auth/oauth/token"
+
+
+ignoreUrls: /actuator/**
 logging:
   level:
     root: info
