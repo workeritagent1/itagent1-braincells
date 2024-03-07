@@ -24,6 +24,10 @@ import reactor.core.publisher.Mono;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 /**
  * ReactiveAuthorizationManager<AuthorizationContext> 接口是 Spring Security的一个核心接口，
@@ -48,6 +52,11 @@ public class ResourceServerManager implements ReactiveAuthorizationManager<Autho
     @Override
     public Mono<AuthorizationDecision> check(Mono<Authentication> mono, AuthorizationContext authorizationContext) {
         ServerHttpRequest request = authorizationContext.getExchange().getRequest();
+        return Mono.just(new AuthorizationDecision(true));
+    }
+
+    public Mono<AuthorizationDecision> check2(Mono<Authentication> mono, AuthorizationContext authorizationContext) {
+        ServerHttpRequest request = authorizationContext.getExchange().getRequest();
 
         // 预检请求放行;这段代码的目的是处理 OPTIONS 请求的授权逻辑。由于 OPTIONS 请求主要用于预检和协商 CORS，
         // 往往不需要进行具体的权限验证，通常会直接允许 OPTIONS 请求通过。
@@ -64,10 +73,22 @@ public class ResourceServerManager implements ReactiveAuthorizationManager<Autho
         String restfulPath = request.getMethodValue() + ":" + path;
 
         log.info("请求方法:RESTFul请求路径：{}", restfulPath);
+        // http://localhost:8001/system/sysPermission/loadPermissionRoles
+        // http://system/sysPermission/loadPermissionRoles
+        // 不写为异步的回报： block()/blockFirst()/blockLast() are blocking, which is not supported in thread parallel-
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        // WebFlux异步调用，同步会报错
+        Future future = executorService.submit(() -> sysPermissionServiceClient.loadPermissionRoles());
+        Result<String> result = null;
+        try {
+            result = (Result<String>)future.get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
+        }
+        executorService.shutdown();
+        log.info("result:{}", JSONUtil.toJsonStr(restfulPath));
 
         // 缓存取【URL权限标识->角色集合】权限规则
-        // Map<String, Object> permRolesRules = redisTemplate.opsForHash().entries(GlobalConstants.URL_PERM_ROLES_KEY);
-        Result<String> result = sysPermissionServiceClient.loadPermissionRoles();
         boolean needToCheck = false;
         JSONObject permissionRoles = JSONUtil.parseObj(result.getData());
         List<String> roles = new ArrayList<>();

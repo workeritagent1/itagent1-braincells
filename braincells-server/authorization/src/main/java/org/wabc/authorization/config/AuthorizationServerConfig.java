@@ -1,12 +1,15 @@
 package org.wabc.authorization.config;
 
 import cn.hutool.core.map.MapUtil;
+import cn.hutool.json.JSONUtil;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
@@ -15,14 +18,14 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.E
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
 import org.springframework.security.oauth2.provider.ClientDetailsService;
+import org.springframework.security.oauth2.provider.client.JdbcClientDetailsService;
 import org.springframework.security.oauth2.provider.token.TokenEnhancer;
-import org.springframework.security.oauth2.provider.token.TokenEnhancerChain;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
+import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
 import org.springframework.security.oauth2.provider.token.store.KeyStoreKeyFactory;
 
+import javax.sql.DataSource;
 import java.security.KeyPair;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -53,9 +56,8 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     private ClientDetailsService clientDetailsService;
 
 // 验证用户的身份并提供相关信息给授权服务器。在WebSecurityConfig中已配置。
-//    @Autowired
-//    private UserDetailsService userDetailsService;
-
+    @Autowired
+    private UserDetailsService userDetailsService;
 
     /**
      * 来自于 WebSecurityConfig注入的PasswordEncoder.bean
@@ -64,12 +66,35 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
      */
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    private final DataSource dataSource;
+
+    /**
+     * 可自定义实现
+     *
+     * @return
+     */
+    @Bean
+    public JdbcClientDetailsService jdbcClientDetailsService() {
+        return new JdbcClientDetailsService(dataSource);
+    }
+
     /**
      * 配置客户端信息
      */
     @Override
     public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
-        clients.withClientDetails(clientDetailsService);
+//        clients.inMemory()
+//                .withClient("client_id_01")
+//                .secret("$2a$10$OlspvduHdbBzm5OenfeaAeSFMFKOXtq6mGzPwjaN/seQqio7pcFEG")
+//                .scopes("all")
+//                //设置支持[密码模式、授权码模式、token刷新]
+//                .authorizedGrantTypes(
+//                        "password",
+//                        "authorization_code",
+//                        "refresh_token");
+        clients.withClientDetails(jdbcClientDetailsService());
+//        clients.withClientDetails(clientDetailsService);
     }
 
     /**
@@ -95,21 +120,29 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
      */
     @Override
     public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
-        // 设置jwt内容增强
-        TokenEnhancerChain tokenEnhancerChain = new TokenEnhancerChain();
-        List<TokenEnhancer> tokenEnhancers = new ArrayList<>();
-        tokenEnhancers.add(tokenEnhancer());
-        tokenEnhancers.add(jwtAccessTokenConverter());
-        tokenEnhancerChain.setTokenEnhancers(tokenEnhancers);
+//        // 设置jwt内容增强
+//        TokenEnhancerChain tokenEnhancerChain = new TokenEnhancerChain();
+//        List<TokenEnhancer> tokenEnhancers = new ArrayList<>();
+//        tokenEnhancers.add(tokenEnhancer());
+//        tokenEnhancers.add(jwtAccessTokenConverter());
+//        tokenEnhancerChain.setTokenEnhancers(tokenEnhancers);
+//
+//        //token存储模式设定 默认为InMemoryTokenStore模式存储到内存中
+//        endpoints.tokenStore(jwtTokenStore());
+//
+//        // refresh token有两种使用方式：重复使用(true)、非重复使用(false)，默认为true
+//        //  1 重复使用：access token过期刷新时， refresh token过期时间未改变，仍以初次生成的时间为准
+//        //  2 非重复使用：access token过期刷新时， refresh token过期时间延续，在refresh token有效期内刷新便永不失效达到无需再次登录的目的
+//        endpoints.authenticationManager(authenticationManager).userDetailsService(userDetailsService)  // WebSecurityConfig类已指定并且指定密码加密器
+//                .accessTokenConverter(jwtAccessTokenConverter())
+//                .tokenEnhancer(tokenEnhancerChain)
+//
+//                .reuseRefreshTokens(true);
 
-        // refresh token有两种使用方式：重复使用(true)、非重复使用(false)，默认为true
-        //  1 重复使用：access token过期刷新时， refresh token过期时间未改变，仍以初次生成的时间为准
-        //  2 非重复使用：access token过期刷新时， refresh token过期时间延续，在refresh token有效期内刷新便永不失效达到无需再次登录的目的
-        endpoints.authenticationManager(authenticationManager)
-                .accessTokenConverter(jwtAccessTokenConverter())
-                .tokenEnhancer(tokenEnhancerChain)
-               //.userDetailsService(userDetailsService) // WebSecurityConfig类已指定并且指定密码加密器
-                .reuseRefreshTokens(true);
+        endpoints
+                .authenticationManager(authenticationManager)
+                .tokenStore(jwtTokenStore())
+                .accessTokenConverter(jwtAccessTokenConverter());
     }
 
 
@@ -120,6 +153,8 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     public TokenEnhancer tokenEnhancer() {
         return (accessToken, authentication) -> {
             Map<String, Object> additionalInfo = MapUtil.newHashMap();
+            User principal = (User)authentication.getUserAuthentication().getPrincipal();
+            System.out.println(JSONUtil.toJsonStr(principal));
             MyUserDetails userDetails = (MyUserDetails) authentication.getUserAuthentication().getPrincipal();
             additionalInfo.put("id", userDetails.getId());
             additionalInfo.put("username", userDetails.getUsername());
@@ -129,15 +164,23 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
         };
     }
 
+
     /**
      * JWT访问令牌转换器,使用非对称密钥
      */
     @Bean
     public JwtAccessTokenConverter jwtAccessTokenConverter() {
         JwtAccessTokenConverter converter = new JwtAccessTokenConverter();
-        converter.setKeyPair(keyPair());
+//        converter.setKeyPair(keyPair());
+        converter.setSigningKey("test-secret");
         return converter;
     }
+
+    @Bean
+    public JwtTokenStore jwtTokenStore() {
+        return new JwtTokenStore(jwtAccessTokenConverter());
+    }
+
 
     /**
      * 密钥库中获取密钥对(公钥+私钥)

@@ -17,10 +17,12 @@ import java.util.List;
 public class CommonTest {
     @Test
     public void BCryptEncode() {
-        String s = new BCryptPasswordEncoder().encode("secret");
+        String s = new BCryptPasswordEncoder().encode("123456");
         System.out.println(s);
         // 用户登录时提供的明文密码与数据库中存储的已加密密码进行匹配。
-        boolean  equivalent = new BCryptPasswordEncoder().matches("secret", s);
+        boolean  equivalent = new BCryptPasswordEncoder().matches("123456", "$10$ExMtq3Z1FPp6nD62uf//AuDXLU.OYHP5AOtvX14WzeiiCM2kVld3.");
+//        boolean  equivalent = new BCryptPasswordEncoder().matches("123456", s);
+
         System.out.print(equivalent);
     }
     @Test
@@ -52,8 +54,8 @@ public class CommonTest {
         url.append("?response_type=code&client_id=");
         url.append(client_id);
         url.append("&redirect_uri=");
-        url.append(getEncodeUrl(redirect_uri));
-
-        response.sendRedirect(url.toString());
+//        url.append(getEncodeUrl(redirect_uri));
+//
+//        response.sendRedirect(url.toString());
     }
 }

@@ -64,6 +64,9 @@ http://localhost:8002/authorization/oauth/token?client_id=client_id_01&client_se
 
 http://localhost:8001/system/
 
+http://localhost:10000/gateway/system/sysPermission/loadPermissionRoles
+http://localhost:8001/system/sysPermission/loadPermissionRoles
+
 
 https://youlai.blog.csdn.net/article/details/108758828
 
@@ -83,3 +86,19 @@ https://www.cnblogs.com/haoxianrui/p/13719356.html
 身份验证：资源服务器使用 JWT 来验证请求中的访问令牌。它会对令牌进行解析，并检查签名和有效期等信息，以确保令牌的可信度和有效性。
 授权访问：JWT 中的负载部分可以包含用户的权限信息。资源服务器使用这些信息来控制对受保护资源的访问权限，确保只有具有适当权限的用户能够访问。
 通过结合 OAuth2 资源服务器和 JWT，我们可以实现对受限资源的安全保护和访问控制。OAuth2 提供了授权机制和流程，而 JWT 提供了一种可靠的身份验证和授权数据传输方式。
+
+
+## debug
+```
+先比对client,再比对user
+additionalAuthenticationChecks
+postman :
+http://localhost:8002/authorization/oauth/token
+Basic auth  
+    Username    client_id_01
+    Password    123456
+body x-www-form-urlencoded
+    grant_type password
+    username admin
+    password 123456    
+```

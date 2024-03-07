@@ -10,7 +10,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.wabc.authorization.entity.SysUser;
-import org.wabc.authorization.result.Result;
 import org.wabc.authorization.service.SystemServiceClient;
 
 /**
@@ -27,8 +26,13 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Result<SysUser> result = userFeignClient.loadUserByUsername(username);
-        SysUser user = result.getData();
+//        Result<SysUser> result = userFeignClient.loadUserByUsername(username);
+        SysUser sysUser = new SysUser();
+        sysUser.setUsername("admin");
+        sysUser.setPassword("$2a$10$0Vb0IMD6KjNj4R71PwvzBu/QL5GjWMGZGrpF7zfJj9Y3RhvDoSqhG");
+        sysUser.setStatus(1);
+        SysUser user = sysUser;
+//        SysUser user = result.getData();
         if (user == null) {
             throw new UsernameNotFoundException("用户不存在");
         }

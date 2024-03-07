@@ -43,3 +43,7 @@ spring:
       password: dev123
 
 
+logging:
+  level:
+    org.springframework.security: DEBUG
+    org.springframework.security.oauth2: DEBUG

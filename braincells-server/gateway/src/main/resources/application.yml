@@ -21,15 +21,18 @@ spring:
         - id: authorization
           uri: lb://authorization
           predicates:
-            - Path=/apigateway/authorization/**
+            - Path=/gateway/authorization/**
           filters:
-            - RewritePath=/apigateway/(?<remaining>.*), /$\{remaining}
+            - RewritePath=/gateway/authorization/(?<remaining>.*), /$\{remaining}
+#            - RewritePath=/gateway/authorization/(?<remaining>.*), /$\{remaining}
+# 通过以上配置，当匹配到 /gateway/** 的请求时，Gateway 将会将请求转发到 http://example.com，并且去除了路径中的 /gateway/ 前缀。
         - id: system
           uri: lb://system
           predicates:
-            - Path=/apigateway/system/**
+            - Path=/gateway/system/**
           filters:
-            - RewritePath=/apigateway/(?<remaining>.*), /$\{remaining}
+            - RewritePath=/gateway/(?<remaining>.*), /$\{remaining}
+
 
   ##配置RSA的公钥访问地址
   security:
