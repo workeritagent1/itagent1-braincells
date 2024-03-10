@@ -25,8 +25,8 @@ spring:
         import-check:
           enabled: false
       discovery:
-        server-addr: 127.0.0.1:8848
-        # server-addr: 192.168.183.131:8848
+#        server-addr: 127.0.0.1:8848
+         server-addr: 192.168.182.131:8848
 
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss

@@ -17,7 +17,9 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.A
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
+import org.springframework.security.oauth2.provider.ClientDetails;
 import org.springframework.security.oauth2.provider.ClientDetailsService;
+import org.springframework.security.oauth2.provider.ClientRegistrationException;
 import org.springframework.security.oauth2.provider.client.JdbcClientDetailsService;
 import org.springframework.security.oauth2.provider.token.TokenEnhancer;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
@@ -53,6 +55,7 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
 
     // 管理客户端应用程序的信息和凭据
     @Autowired
+//    @Qualifier("ClientDetailsServiceImpl")
     private ClientDetailsService clientDetailsService;
 
 // 验证用户的身份并提供相关信息给授权服务器。在WebSecurityConfig中已配置。
@@ -93,9 +96,22 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
 //                        "password",
 //                        "authorization_code",
 //                        "refresh_token");
-        clients.withClientDetails(jdbcClientDetailsService());
-//        clients.withClientDetails(clientDetailsService);
+//        clients.withClientDetails(jdbcClientDetailsService());
+        clients.withClientDetails(clientDetailsService);
+//        clients.withClientDetails(myClientDetailsService());
     }
+
+
+    public ClientDetailsService myClientDetailsService() throws Exception {
+        return new ClientDetailsService() {
+            @Override
+            public ClientDetails loadClientByClientId(String clientId) throws ClientRegistrationException {
+                // TODO 调用dao、service查询自定义数据结构、库，组织对应的ClientDetails
+                return null;
+            }
+        };
+    }
+
 
     /**
      * 配置授权服务器的安全性相关设置，例如设置访问令牌的密钥、允许的请求方式
@@ -113,6 +129,7 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
                 // 客户端密码加密器(已确认)
                 .passwordEncoder(passwordEncoder);
     }
+
 
 
     /**

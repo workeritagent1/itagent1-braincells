@@ -36,6 +36,9 @@ nacos   https://nacos.io/zh-cn/docs/quick-start.html
                    window https://github.com/alibaba/nacos/releases/download/2.1.1/nacos-server-2.1.1.zip
                    
            参考技术：https://github.com/mtcarpenter/mall-cloud-alibaba
+           
+           
+      https://jwt.io/     
 ```
 
 
@@ -47,6 +50,17 @@ IDEA Unable to import maven project: See logs for details具体解决方法
     https://blog.csdn.net/qq_43516594/article/details/109175115
 springboot + springcloud + spring cloud alibaba+nacos版本不符的问题
     https://github.com/alibaba/spring-cloud-alibaba/wiki/%E7%89%88%E6%9C%AC%E8%AF%B4%E6%98%8E
+    
+问题：前端/oauth/token报401,403 问题报401/403   
+   后端： 
+2024-03-10 12:21:01.683 DEBUG 58776 --- [nio-8002-exec-2] s.s.w.c.SecurityContextPersistenceFilter : Cleared SecurityContextHolder to complete request
+2024-03-10 12:21:01.689 ERROR 58776 --- [nio-8002-exec-2] o.a.c.c.C.[.[.[.[dispatcherServlet]      : Servlet.service() for servlet [dispatcherServlet] in context with path [/authorization] threw exception [Filter execution threw an exception] with root cause
+java.lang.StackOverflowError: null
+	at org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:344) ~[spring-aop-5.3.31.jar:5.3.31]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:198) ~[spring-aop-5.3.31.jar:5.3.31]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:163) ~[spring-aop-5.3.31.jar:5.3.31]
+  1.没有加 @Qualifier("ClientDetailsServiceImpl")，走到其他ClientDetailsService实现类了，一直达不到断点。
+  2. 没有设置密码，参数遗漏； clientDetails.setClientSecret(oauthClient.getClientSecret());	
 ```
 
 # 不要用什么最新版，当小白鼠，太浪费事件时间。
