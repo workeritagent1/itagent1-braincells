@@ -1,34 +1,39 @@
 package org.wabc.authorization.config;
 
-import cn.hutool.core.map.MapUtil;
-import cn.hutool.json.JSONUtil;
-import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
-import org.springframework.security.oauth2.provider.ClientDetails;
 import org.springframework.security.oauth2.provider.ClientDetailsService;
-import org.springframework.security.oauth2.provider.ClientRegistrationException;
-import org.springframework.security.oauth2.provider.client.JdbcClientDetailsService;
+import org.springframework.security.oauth2.provider.CompositeTokenGranter;
+import org.springframework.security.oauth2.provider.OAuth2RequestFactory;
+import org.springframework.security.oauth2.provider.TokenGranter;
+import org.springframework.security.oauth2.provider.client.ClientCredentialsTokenGranter;
+import org.springframework.security.oauth2.provider.code.AuthorizationCodeTokenGranter;
+import org.springframework.security.oauth2.provider.implicit.ImplicitTokenGranter;
+import org.springframework.security.oauth2.provider.password.ResourceOwnerPasswordTokenGranter;
+import org.springframework.security.oauth2.provider.refresh.RefreshTokenGranter;
+import org.springframework.security.oauth2.provider.token.AuthorizationServerTokenServices;
 import org.springframework.security.oauth2.provider.token.TokenEnhancer;
+import org.springframework.security.oauth2.provider.token.TokenEnhancerChain;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
 import org.springframework.security.oauth2.provider.token.store.KeyStoreKeyFactory;
 
-import javax.sql.DataSource;
 import java.security.KeyPair;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * oauth2标准规范的授权服务器，包括以下功能：
@@ -46,16 +51,14 @@ import java.util.Map;
  */
 @Configuration
 @EnableAuthorizationServer
-@AllArgsConstructor
+@Slf4j
 public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdapter {
-
-    // 在Lombok @AllArgsConstructor注解会自动为所有带参字段生成构造函数，并将这些参数注入到相应的字段中。
     @Autowired
     private AuthenticationManager authenticationManager;
 
     // 管理客户端应用程序的信息和凭据
     @Autowired
-//    @Qualifier("ClientDetailsServiceImpl")
+    @Qualifier("ClientDetailsServiceImpl")
     private ClientDetailsService clientDetailsService;
 
 // 验证用户的身份并提供相关信息给授权服务器。在WebSecurityConfig中已配置。
@@ -70,48 +73,13 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    private final DataSource dataSource;
-
-    /**
-     * 可自定义实现
-     *
-     * @return
-     */
-    @Bean
-    public JdbcClientDetailsService jdbcClientDetailsService() {
-        return new JdbcClientDetailsService(dataSource);
-    }
-
     /**
      * 配置客户端信息
      */
     @Override
     public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
-//        clients.inMemory()
-//                .withClient("client_id_01")
-//                .secret("$2a$10$OlspvduHdbBzm5OenfeaAeSFMFKOXtq6mGzPwjaN/seQqio7pcFEG")
-//                .scopes("all")
-//                //设置支持[密码模式、授权码模式、token刷新]
-//                .authorizedGrantTypes(
-//                        "password",
-//                        "authorization_code",
-//                        "refresh_token");
-//        clients.withClientDetails(jdbcClientDetailsService());
         clients.withClientDetails(clientDetailsService);
-//        clients.withClientDetails(myClientDetailsService());
     }
-
-
-    public ClientDetailsService myClientDetailsService() throws Exception {
-        return new ClientDetailsService() {
-            @Override
-            public ClientDetails loadClientByClientId(String clientId) throws ClientRegistrationException {
-                // TODO 调用dao、service查询自定义数据结构、库，组织对应的ClientDetails
-                return null;
-            }
-        };
-    }
-
 
     /**
      * 配置授权服务器的安全性相关设置，例如设置访问令牌的密钥、允许的请求方式
@@ -124,8 +92,8 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
         // 要访问/oauth/check_token必须设置为permitAll()，但这样所有人都可以访问了，设为isAuthenticated()又导致访问不了，这个问题暂时没找到解决方案
         // 开启/oauth/check_token验证端口认证权限访问
         security.allowFormAuthenticationForClients()
-                .tokenKeyAccess("permitAll()")
-                .checkTokenAccess("isAuthenticated()")
+//                .tokenKeyAccess("permitAll()")
+//                .checkTokenAccess("isAuthenticated()")
                 // 客户端密码加密器(已确认)
                 .passwordEncoder(passwordEncoder);
     }
@@ -137,48 +105,99 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
      */
     @Override
     public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
-//        // 设置jwt内容增强
-//        TokenEnhancerChain tokenEnhancerChain = new TokenEnhancerChain();
-//        List<TokenEnhancer> tokenEnhancers = new ArrayList<>();
-//        tokenEnhancers.add(tokenEnhancer());
-//        tokenEnhancers.add(jwtAccessTokenConverter());
-//        tokenEnhancerChain.setTokenEnhancers(tokenEnhancers);
-//
+        // 设置jwt内容增强
+        TokenEnhancerChain tokenEnhancerChain = new TokenEnhancerChain();
+        tokenEnhancerChain.setTokenEnhancers(Arrays.asList(tokenEnhancer(), jwtAccessTokenConverter()));
+        // 初始化所有的TokenGranter，并且类型为CompositeTokenGranter
+        List<TokenGranter> tokenGranters = getDefaultTokenGranters(endpoints);
+
+        // approvalStore(approvalStore())  影响授权码询问客户是否授权页面
+        endpoints
+                .tokenGranter(new CompositeTokenGranter(tokenGranters))
+                .tokenStore(new JwtTokenStore(jwtAccessTokenConverter()))
+                .tokenEnhancer(tokenEnhancerChain)
+                .authenticationManager(authenticationManager);
+
+//        // 获取原有默认授权模式(授权码模式、密码模式、客户端模式、简化模式)的授权者
+//        List<TokenGranter> granterList = new ArrayList<>(Arrays.asList(endpoints.getTokenGranter()));
 //        //token存储模式设定 默认为InMemoryTokenStore模式存储到内存中
 //        endpoints.tokenStore(jwtTokenStore());
-//
-//        // refresh token有两种使用方式：重复使用(true)、非重复使用(false)，默认为true
-//        //  1 重复使用：access token过期刷新时， refresh token过期时间未改变，仍以初次生成的时间为准
-//        //  2 非重复使用：access token过期刷新时， refresh token过期时间延续，在refresh token有效期内刷新便永不失效达到无需再次登录的目的
+//        CompositeTokenGranter compositeTokenGranter = new CompositeTokenGranter(granterList);
+//        endpoints
+//                .authenticationManager(authenticationManager)
+//                .accessTokenConverter(jwtAccessTokenConverter())
+//                .tokenEnhancer(tokenEnhancerChain)
+//                .tokenGranter(compositeTokenGranter)
+////                .reuseRefreshTokens(true);
+////                .tokenServices(tokenServices(endpoints))
+        ;
+
+
+        // refresh token有两种使用方式：重复使用(true)、非重复使用(false)，默认为true
+        //  1 重复使用：access token过期刷新时， refresh token过期时间未改变，仍以初次生成的时间为准
+        //  2 非重复使用：access token过期刷新时， refresh token过期时间延续，在refresh token有效期内刷新便永不失效达到无需再次登录的目的
 //        endpoints.authenticationManager(authenticationManager).userDetailsService(userDetailsService)  // WebSecurityConfig类已指定并且指定密码加密器
 //                .accessTokenConverter(jwtAccessTokenConverter())
 //                .tokenEnhancer(tokenEnhancerChain)
-//
 //                .reuseRefreshTokens(true);
 
-        endpoints
-                .authenticationManager(authenticationManager)
-                .tokenStore(jwtTokenStore())
-                .accessTokenConverter(jwtAccessTokenConverter());
+
+//        endpoints
+//                .authenticationManager(authenticationManager)
+//                .tokenStore(jwtTokenStore())
+//                .accessTokenConverter(jwtAccessTokenConverter());
     }
 
+
+    /**
+     * 初始化所有的TokenGranter
+     */
+    private List<TokenGranter> getDefaultTokenGranters(AuthorizationServerEndpointsConfigurer endpoints) {
+
+        ClientDetailsService clientDetails = endpoints.getClientDetailsService();
+        AuthorizationServerTokenServices tokenServices = endpoints.getTokenServices();
+        // AuthorizationCodeServices authorizationCodeServices = endpoints.getAuthorizationCodeServices();
+        OAuth2RequestFactory requestFactory = endpoints.getOAuth2RequestFactory();
+
+        List<TokenGranter> tokenGranters = new ArrayList<>();
+        tokenGranters.add(new AuthorizationCodeTokenGranter(tokenServices, endpoints.getAuthorizationCodeServices(), clientDetails,
+                requestFactory));
+        tokenGranters.add(new RefreshTokenGranter(tokenServices, clientDetails, requestFactory));
+        ImplicitTokenGranter implicit = new ImplicitTokenGranter(tokenServices, clientDetails, requestFactory);
+        tokenGranters.add(implicit);
+        tokenGranters.add(new ClientCredentialsTokenGranter(tokenServices, clientDetails, requestFactory));
+        if (authenticationManager != null) {
+            tokenGranters.add(new ResourceOwnerPasswordTokenGranter(authenticationManager, tokenServices,
+                    clientDetails, requestFactory));
+//            tokenGranters.add(new SmsCodeGranter(authenticationManager, endpoints.getTokenServices(),
+//                    endpoints.getClientDetailsService(), endpoints.getOAuth2RequestFactory()));
+        }
+        return tokenGranters;
+    }
 
     /**
      * 自定义的令牌增强器,充additionalInfo{}内容
      */
     @Bean
     public TokenEnhancer tokenEnhancer() {
-        return (accessToken, authentication) -> {
-            Map<String, Object> additionalInfo = MapUtil.newHashMap();
-            User principal = (User)authentication.getUserAuthentication().getPrincipal();
-            System.out.println(JSONUtil.toJsonStr(principal));
-            MyUserDetails userDetails = (MyUserDetails) authentication.getUserAuthentication().getPrincipal();
-            additionalInfo.put("id", userDetails.getId());
-            additionalInfo.put("username", userDetails.getUsername());
-            additionalInfo.put("deptId", userDetails.getDeptId());
-            ((DefaultOAuth2AccessToken) accessToken).setAdditionalInformation(additionalInfo);
-            return accessToken;
-        };
+        return new EnhanceTokenEnhancer();
+
+//        return (accessToken, authentication) -> {
+//            Map<String, Object> additionalInfo = MapUtil.newHashMap();
+//
+//            Authentication userAuthentication = authentication.getUserAuthentication();
+//            if (userAuthentication != null) {
+//                log.info("tokenEnhancer:{}", JSONUtil.toJsonStr(userAuthentication.getPrincipal()));
+//                MyUserDetails userDetails = (MyUserDetails) userAuthentication.getPrincipal();
+//                additionalInfo.put("id", userDetails.getId());
+//                additionalInfo.put("username", userDetails.getUsername());
+//                additionalInfo.put("deptId", userDetails.getDeptId());
+//                additionalInfo.put("aaa", "aaa");
+//                ((DefaultOAuth2AccessToken) accessToken).setAdditionalInformation(additionalInfo);
+//            }
+//
+//            return accessToken;
+//        };
     }
 
 
@@ -188,8 +207,8 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     @Bean
     public JwtAccessTokenConverter jwtAccessTokenConverter() {
         JwtAccessTokenConverter converter = new JwtAccessTokenConverter();
-//        converter.setKeyPair(keyPair());
-        converter.setSigningKey("test-secret");
+        converter.setKeyPair(keyPair());
+//        converter.setSigningKey("test-secret");
         return converter;
     }
 
@@ -210,5 +229,7 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
         KeyPair keyPair = factory.getKeyPair("jwt", "Wabc@2023".toCharArray());
         return keyPair;
     }
+
+
 
 }

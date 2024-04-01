@@ -1,5 +1,7 @@
 package org.wabc.authorization.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
@@ -22,6 +24,7 @@ public class OauthClientDetails implements Serializable {
     /**
      * 客户端唯一标识符
      */
+    @TableId(value = "client_id",type = IdType.AUTO)
     private String clientId;
 
     /**

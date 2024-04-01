@@ -1,5 +1,6 @@
 package org.wabc.authorization.config;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.CredentialsExpiredException;
@@ -10,7 +11,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.wabc.authorization.entity.SysUser;
-import org.wabc.authorization.service.SystemServiceClient;
+import org.wabc.authorization.mapper.SysUserMapper;
+
+import java.util.List;
 
 /**
  * 验证用户的身份并提供相关信息给授权服务器。
@@ -22,22 +25,19 @@ import org.wabc.authorization.service.SystemServiceClient;
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
     @Autowired
-    SystemServiceClient userFeignClient;
+    SysUserMapper mapper;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-//        Result<SysUser> result = userFeignClient.loadUserByUsername(username);
-        SysUser sysUser = new SysUser();
-        sysUser.setUsername("admin");
-        sysUser.setPassword("$2a$10$0Vb0IMD6KjNj4R71PwvzBu/QL5GjWMGZGrpF7zfJj9Y3RhvDoSqhG");
-        sysUser.setStatus(1);
-        SysUser user = sysUser;
-//        SysUser user = result.getData();
-        if (user == null) {
+        QueryWrapper<SysUser> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("username", username);
+        List<SysUser> users = mapper.selectList(queryWrapper);
+        SysUser sysUser = !users.isEmpty() ? users.get(0) : null;
+        if (sysUser == null) {
             throw new UsernameNotFoundException("用户不存在");
         }
 
-        MyUserDetails userDetails = new MyUserDetails(user);
+        MyUserDetails userDetails = new MyUserDetails(sysUser);
 
         if (!userDetails.isEnabled()) {
             throw new DisabledException("账户已被禁用");

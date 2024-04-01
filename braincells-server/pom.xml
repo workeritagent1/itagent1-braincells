@@ -32,6 +32,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
+        <tomcat.version>9.0.54</tomcat.version>
         <spring-boot.version>2.7.18</spring-boot.version>
         <!-- spring cloud -->
         <spring-cloud.version>2021.0.5</spring-cloud.version>

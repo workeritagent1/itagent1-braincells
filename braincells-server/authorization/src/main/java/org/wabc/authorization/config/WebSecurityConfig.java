@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -22,7 +22,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
  * @since 2023-12-30
  */
 @Configuration
-@EnableWebSecurity
+//@EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     UserDetailsService userDetailsService;
@@ -43,12 +43,24 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
           /actuator/..，这里不配置监控。
 
          */
+//        http.authorizeRequests()
+//                .antMatchers("/oauth/**").permitAll()
+//                .anyRequest().authenticated()
+//                .and()
+//                .csrf().disable();
+
+//                .oauth2Login(); // 这一行加了会报错
+//                .exceptionHandling(); // 不设置 authenticationEntryPoint，默认将会使用默认的 LoginUrlAuthenticationEntryPoint
+
         http.authorizeRequests()
-                .antMatchers("/oauth/**").permitAll()
+                .antMatchers("/login", "/oauth/authorize")
+                .permitAll()
                 .anyRequest().authenticated()
-                .and()
-                .csrf().disable();
+                .and().csrf().disable()
+                .formLogin().loginPage("/login");
+
     }
+
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -61,7 +73,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
      * oatuh2 授权类型为密码模式，authorizedGrantTypes=password时要使用此认证管理器。
      */
     @Override
-    @Bean
+    @Bean(value = "authenticationManager")
     public AuthenticationManager authenticationManagerBean() throws Exception {
         return super.authenticationManagerBean();
     }
@@ -74,4 +86,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         return new BCryptPasswordEncoder();
     }
 
+    /**
+     * 静态资源放行【如果存在静态资源的话】
+     *
+     * @param webSecurity
+     */
+    @Override
+    public void configure(WebSecurity webSecurity) {
+        // 静态资源放行
+        webSecurity.ignoring().antMatchers("/dist/**", "/moudle/**", "/plugins/**");
+    }
 }

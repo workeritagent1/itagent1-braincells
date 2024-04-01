@@ -93,7 +93,7 @@ public class ResourceServerConfig {
                 .pathMatchers(Convert.toStrArray(ignoreUrls)).permitAll()
                 .anyExchange().access(resourceServerManager)
                 .and().exceptionHandling()
-                .accessDeniedHandler(accessDeniedHandler())
+                .accessDeniedHandler(accessDeniedHandler()) // 处理未授权
                 .authenticationEntryPoint(authenticationEntryPoint()) //处理未认证
                 .and()
                 .csrf().disable();

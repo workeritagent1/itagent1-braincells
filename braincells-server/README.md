@@ -61,6 +61,7 @@ java.lang.StackOverflowError: null
 	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:163) ~[spring-aop-5.3.31.jar:5.3.31]
   1.没有加 @Qualifier("ClientDetailsServiceImpl")，走到其他ClientDetailsService实现类了，一直达不到断点。
   2. 没有设置密码，参数遗漏； clientDetails.setClientSecret(oauthClient.getClientSecret());	
+  AbstractUserDetailsAuthenticationProvider 调试类
 ```
 
 # 不要用什么最新版，当小白鼠，太浪费事件时间。
@@ -102,6 +103,12 @@ https://www.cnblogs.com/haoxianrui/p/13719356.html
 通过结合 OAuth2 资源服务器和 JWT，我们可以实现对受限资源的安全保护和访问控制。OAuth2 提供了授权机制和流程，而 JWT 提供了一种可靠的身份验证和授权数据传输方式。
 
 
+最佳推荐的文章：https://blog.csdn.net/NeverFG/article/details/131405161
+ 源代码： https://github.com/torlesse-liang/torlesse-oauth2
+ https://www.ruanyifeng.com/blog/2014/05/oauth_2_0.html
+https://blog.csdn.net/qq_42264638/article/details/131289529
+AuthorizationEndpoint
+TokenEndpoint
 ## debug
 ```
 先比对client,再比对user
@@ -109,10 +116,12 @@ additionalAuthenticationChecks
 postman :
 http://localhost:8002/authorization/oauth/token
 Basic auth  
-    Username    client_id_01
+    Username    client01
     Password    123456
 body x-www-form-urlencoded
     grant_type password
     username admin
     password 123456    
 ```
+
+## 
