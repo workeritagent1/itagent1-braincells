@@ -1,4 +1,4 @@
-package org.wabc.authorization.entity.base;
+package org.wabc.authorization.entity;
 
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;

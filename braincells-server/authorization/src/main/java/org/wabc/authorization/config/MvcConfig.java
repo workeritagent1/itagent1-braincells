@@ -5,11 +5,11 @@ import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
- * Created with IntelliJ IDEA.
- *
- * @Author: torlesse-liang
- * @Date: 2022/04/11/22:21
- * @Description: 配置登录页面的视图信息
+ * 配置登录页面的视图信息
+ * <a href="https://github.com/torlesse-liang/torlesse-oauth2">参考</a>
+ * @author wabc
+ * @version 1.0
+ * @since 2024-04-01
  */
 @Configuration
 public class MvcConfig implements WebMvcConfigurer {

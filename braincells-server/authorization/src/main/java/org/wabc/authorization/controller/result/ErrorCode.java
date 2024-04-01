@@ -1,4 +1,4 @@
-package org.wabc.authorization.result;
+package org.wabc.authorization.controller.result;
 
 /**
  * 复制于：com.alibaba.nacos.api.model.v2

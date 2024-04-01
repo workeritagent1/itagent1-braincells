@@ -1,4 +1,4 @@
-package org.wabc.authorization.result;
+package org.wabc.authorization.controller.result;
 
 
 import java.io.Serializable;

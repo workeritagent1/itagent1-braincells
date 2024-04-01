@@ -1,4 +1,4 @@
-package org.wabc.authorization.config;
+package org.wabc.authorization.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +12,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.wabc.authorization.entity.SysUser;
 import org.wabc.authorization.mapper.SysUserMapper;
+import org.wabc.authorization.model.SysUserDetails;
 
 import java.util.List;
 
@@ -37,7 +38,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             throw new UsernameNotFoundException("用户不存在");
         }
 
-        MyUserDetails userDetails = new MyUserDetails(sysUser);
+        SysUserDetails userDetails = new SysUserDetails(sysUser);
 
         if (!userDetails.isEnabled()) {
             throw new DisabledException("账户已被禁用");

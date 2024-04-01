@@ -1,4 +1,4 @@
-package org.wabc.authorization.config;
+package org.wabc.authorization.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,9 +43,11 @@ public class ClientDetailsServiceImpl implements ClientDetailsService {
                 oauthClient.getAuthorities(),
                 oauthClient.getWebServerRedirectUri()
         );
+
         clientDetails.setClientSecret(oauthClient.getClientSecret());
         clientDetails.setAccessTokenValiditySeconds(oauthClient.getAccessTokenValidity());
         clientDetails.setRefreshTokenValiditySeconds(oauthClient.getRefreshTokenValidity());
+
         return clientDetails;
     }
 

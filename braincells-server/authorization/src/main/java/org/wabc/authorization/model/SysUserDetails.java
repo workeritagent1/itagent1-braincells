@@ -1,4 +1,4 @@
-package org.wabc.authorization.config;
+package org.wabc.authorization.model;
 
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
@@ -17,7 +17,7 @@ import java.util.Collection;
  * @since 2023-12-31
  */
 @Data
-public class MyUserDetails implements UserDetails {
+public class SysUserDetails implements UserDetails {
     private Long id;
     private String username;
     private String password;
@@ -26,10 +26,10 @@ public class MyUserDetails implements UserDetails {
     // 权限数据
     private Collection<SimpleGrantedAuthority> authorities;
 
-    public MyUserDetails() {
+    public SysUserDetails() {
     }
 
-    public MyUserDetails(SysUser user) {
+    public SysUserDetails(SysUser user) {
         this.setId(user.getId());
         this.setUsername(user.getUsername());
         this.setPassword(user.getPassword());
