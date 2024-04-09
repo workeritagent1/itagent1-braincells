@@ -15,15 +15,7 @@ import org.springframework.security.oauth2.config.annotation.web.configurers.Aut
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
 import org.springframework.security.oauth2.provider.ClientDetailsService;
 import org.springframework.security.oauth2.provider.CompositeTokenGranter;
-import org.springframework.security.oauth2.provider.OAuth2RequestFactory;
 import org.springframework.security.oauth2.provider.TokenGranter;
-import org.springframework.security.oauth2.provider.client.ClientCredentialsTokenGranter;
-import org.springframework.security.oauth2.provider.code.AuthorizationCodeServices;
-import org.springframework.security.oauth2.provider.code.AuthorizationCodeTokenGranter;
-import org.springframework.security.oauth2.provider.implicit.ImplicitTokenGranter;
-import org.springframework.security.oauth2.provider.password.ResourceOwnerPasswordTokenGranter;
-import org.springframework.security.oauth2.provider.refresh.RefreshTokenGranter;
-import org.springframework.security.oauth2.provider.token.AuthorizationServerTokenServices;
 import org.springframework.security.oauth2.provider.token.TokenEnhancer;
 import org.springframework.security.oauth2.provider.token.TokenEnhancerChain;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
@@ -126,8 +118,9 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
      * 初始化所有的TokenGranter
      */
     private List<TokenGranter> getDefaultTokenGranters(AuthorizationServerEndpointsConfigurer endpoints) {
+        return new ArrayList<>(Arrays.asList(endpoints.getTokenGranter()));
 
-        ClientDetailsService clientDetails = endpoints.getClientDetailsService();
+      /*  ClientDetailsService clientDetails = endpoints.getClientDetailsService();
         AuthorizationServerTokenServices tokenServices = endpoints.getTokenServices();
         AuthorizationCodeServices authorizationCodeServices = endpoints.getAuthorizationCodeServices();
         OAuth2RequestFactory requestFactory = endpoints.getOAuth2RequestFactory();
@@ -145,7 +138,7 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
             // 处理密码授权类型的令牌授权请求。
             tokenGranters.add(new ResourceOwnerPasswordTokenGranter(authenticationManager, tokenServices, clientDetails, requestFactory));
         }
-        return tokenGranters;
+        return tokenGranters;*/
     }
 
     /**

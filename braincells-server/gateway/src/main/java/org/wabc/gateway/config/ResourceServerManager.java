@@ -24,10 +24,8 @@ import reactor.core.publisher.Mono;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 /**
  * ReactiveAuthorizationManager<AuthorizationContext> 接口是 Spring Security的一个核心接口，
@@ -49,13 +47,13 @@ public class ResourceServerManager implements ReactiveAuthorizationManager<Autho
      * AuthorizationContext：一个包含有关当前请求和资源的上下文对象，可以通过它获取相关的请求信息和资源信息。
      * 方法返回一个 Mono<AuthorizationDecision>对象，用于表示授权决策结果。Mono是 Reactor框架中的一种响应式类型，表示异步计算结果。
      */
-    @Override
-    public Mono<AuthorizationDecision> check(Mono<Authentication> mono, AuthorizationContext authorizationContext) {
-        ServerHttpRequest request = authorizationContext.getExchange().getRequest();
-        return Mono.just(new AuthorizationDecision(true));
-    }
+//    @Override
+//    public Mono<AuthorizationDecision> check(Mono<Authentication> mono, AuthorizationContext authorizationContext) {
+//        ServerHttpRequest request = authorizationContext.getExchange().getRequest();
+//        return Mono.just(new AuthorizationDecision(true));
+//    }
 
-    public Mono<AuthorizationDecision> check2(Mono<Authentication> mono, AuthorizationContext authorizationContext) {
+    public Mono<AuthorizationDecision> check(Mono<Authentication> mono, AuthorizationContext authorizationContext) {
         ServerHttpRequest request = authorizationContext.getExchange().getRequest();
 
         // 预检请求放行;这段代码的目的是处理 OPTIONS 请求的授权逻辑。由于 OPTIONS 请求主要用于预检和协商 CORS，
@@ -78,14 +76,15 @@ public class ResourceServerManager implements ReactiveAuthorizationManager<Autho
         // 不写为异步的回报： block()/blockFirst()/blockLast() are blocking, which is not supported in thread parallel-
         ExecutorService executorService = Executors.newSingleThreadExecutor();
         // WebFlux异步调用，同步会报错
-        Future future = executorService.submit(() -> sysPermissionServiceClient.loadPermissionRoles());
-        Result<String> result = null;
-        try {
-            result = (Result<String>)future.get();
-        } catch (InterruptedException | ExecutionException e) {
-            throw new RuntimeException(e);
-        }
-        executorService.shutdown();
+//        Future future = executorService.submit(() -> sysPermissionServiceClient.loadPermissionRoles());
+//        Result<String> result = null;
+//        try {
+//            result = (Result<String>)future.get();
+//        } catch (InterruptedException | ExecutionException e) {
+//            throw new RuntimeException(e);
+//        }
+//        executorService.shutdown();
+        Result<String> result = getPermission();
         log.info("result:{}", JSONUtil.toJsonStr(restfulPath));
 
         // 缓存取【URL权限标识->角色集合】权限规则
@@ -122,5 +121,35 @@ public class ResourceServerManager implements ReactiveAuthorizationManager<Autho
                 }).map(AuthorizationDecision::new)
                 .defaultIfEmpty(new AuthorizationDecision(false));
         return authorizationDecisionMono;
+    }
+
+    private Result<String> getPermission(){
+       String s = "{\"code\":0,\"message\":\"success\",\"data\":\"{\\\"PUT:/system/sysUser/*\\\":[\\\"webmaster\\\"],\\\"DELETE:/system/sysUser/*\\\":[\\\"aigcadmin\\\"],\\\"GET:/system/sysUser/*\\\":[\\\"sysadmin\\\"],\\\"POST:/system/sysUser/*\\\":[\\\"blogadmin\\\"]}\"}";
+        JSONObject json = JSONUtil.parseObj(s);
+        Result result = new Result(json.getInt("code"),json.getStr("message"),json.getStr("data"));
+        log.info(JSONUtil.parse(result.getData()).toStringPretty());
+       return result;
+
+    }
+
+    public static void main(String[] args) {
+        String s = "{\"code\":0,\"message\":\"success\",\"data\":\"{\\\"PUT:/system/sysUser/*\\\":[\\\"webmaster\\\"],\\\"DELETE:/system/sysUser/*\\\":[\\\"aigcadmin\\\"],\\\"GET:/system/sysUser/*\\\":[\\\"sysadmin\\\"],\\\"POST:/system/sysUser/*\\\":[\\\"blogadmin\\\"]}\"}";
+        JSONObject json = JSONUtil.parseObj(s);
+        Result result = new Result(json.getInt("code"),json.getStr("message"),json.getStr("data"));
+        log.info(JSONUtil.parse(result.getData()).toStringPretty());
+        /*{
+                "PUT:/system/sysUser/*": [
+                "webmaster"
+            ],
+                "DELETE:/system/sysUser/*": [
+                "aigcadmin"
+            ],
+                "GET:/system/sysUser/*": [
+                "sysadmin"
+            ],
+                "POST:/system/sysUser/*": [
+                "blogadmin"
+            ]
+        }*/
     }
 }

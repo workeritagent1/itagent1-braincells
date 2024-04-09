@@ -69,4 +69,5 @@ public class Result<T> implements Serializable {
     public T getData() {
         return this.data;
     }
+
 }

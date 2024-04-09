@@ -42,7 +42,6 @@ spring:
       host: 192.168.183.131
       password: dev123
 
-
 logging:
   level:
     root: DEBUG

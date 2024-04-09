@@ -22,7 +22,7 @@ public class SysPermissionController {
     @Autowired
     SysPermissionService sysPermissionService;
 
-    @GetMapping("/loadPermissionRoles_A")
+    @GetMapping("/loadPermissionRoles")
     Result<String> loadPermissionRoles() {
         String permissionRoles = sysPermissionService.loadPermissionRoles();
         return Result.success(permissionRoles);

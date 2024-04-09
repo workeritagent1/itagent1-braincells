@@ -13,8 +13,9 @@ spring:
       config:
         import-check:
           enabled: false
-#        server-addr: 127.0.0.1:8848
-          server-addr: 192.168.182.131:8848  # 指定nacos地址
+      discovery:
+        # server-addr: 127.0.0.1:8848
+        server-addr: 192.168.182.131:8848
     gateway:
       #   # 相当于访问http://localhost:10000/gateway/authorization/echo/hello 转发到http://localhost:8000/authorization/echo/hello
       routes:
@@ -23,7 +24,7 @@ spring:
           predicates:
             - Path=/gateway/authorization/**
           filters:
-            - RewritePath=/gateway/authorization/(?<remaining>.*), /$\{remaining}
+            - RewritePath=/gateway/authorization/(?<remaining>.*), /authorization/$\{remaining}
 #            - RewritePath=/gateway/authorization/(?<remaining>.*), /$\{remaining}
 # 通过以上配置，当匹配到 /gateway/** 的请求时，Gateway 将会将请求转发到 http://example.com，并且去除了路径中的 /gateway/ 前缀。
         - id: system
@@ -45,12 +46,15 @@ spring:
     redis:
       database: 0
       port: 6379
-      host: 192.168.183.131
+      host: 192.168.182.131
       password: dev123
 
-
-ignoreUrls: /actuator/**
+security:
+  ignoreUrls:
+    # 去请求认证时，可能还没有授权码，不拦截。
+    - /gateway/authorization/**
+    - /gateway/actuator/**
 logging:
   level:
-    root: info
-#    root: debug
+#    root: info
+    root: debug

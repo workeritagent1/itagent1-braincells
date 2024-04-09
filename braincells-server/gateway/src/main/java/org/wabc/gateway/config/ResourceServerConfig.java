@@ -1,13 +1,15 @@
 package org.wabc.gateway.config;
 
+import cn.hutool.core.codec.Base64;
 import cn.hutool.core.convert.Convert;
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.json.JSONObject;
-import com.sun.org.apache.xml.internal.security.utils.Base64;
+import lombok.Setter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
@@ -48,13 +50,13 @@ import java.util.List;
 @Configuration
 @EnableWebFluxSecurity
 @Slf4j
+@ConfigurationProperties(prefix = "security")
 public class ResourceServerConfig {
     // Lombok @AllArgsConstructor 自动生成了一个包含 ResourceServerManager 参数的构造函数。实现构造函数注入
     @Autowired
     private  ResourceServerManager resourceServerManager;
 
-    // 白名单
-    @Value("${ignoreUrls}")
+    @Setter  // 白名单
     private List<String> ignoreUrls;
 
     @Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri}")

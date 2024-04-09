@@ -5,9 +5,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -60,14 +60,16 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and().csrf().disable()
                 .formLogin().loginPage("/login");
 
-    }
+       //  youlai2.0.1
+       /* http
+                .authorizeRequests().antMatchers("/oauth/**", "/sms-code").permitAll()
+                // @link https://gitee.com/xiaoym/knife4j/issues/I1Q5X6 (接口文档knife4j需要放行的规则)
+                .antMatchers("/webjars/**", "/doc.html", "/swagger-resources/**", "/v2/api-docs").permitAll()
+                .anyRequest().authenticated()
+                .and()
+                .csrf().disable();*/
 
 
-    @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        // 配置用户密码加密器
-        // AuthorizationServerConfig endpoints不支持passwordEncoder方法。只能在这里指定
-        auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
     }
 
     /**
@@ -79,8 +81,33 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         return super.authenticationManagerBean();
     }
 
+    @Override
+    public void configure(AuthenticationManagerBuilder auth) {
+        auth.authenticationProvider(daoAuthenticationProvider());
+//                authenticationProvider(wechatAuthenticationProvider()).
+//                authenticationProvider(smsCodeAuthenticationProvider());
+    }
+
     /**
-     * UserDetails用户详细信息密码加密器。
+     * 用户名密码认证授权提供者
+     *
+     * @return
+     */
+    @Bean
+    public DaoAuthenticationProvider daoAuthenticationProvider() {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setUserDetailsService(userDetailsService);
+        provider.setPasswordEncoder(passwordEncoder());
+        provider.setHideUserNotFoundExceptions(false); // 是否隐藏用户不存在异常，默认:true-隐藏；false-抛出异常；
+        return provider;
+    }
+
+
+    /**
+     * 密码编码器
+     * <p>
+     * 委托方式，根据密码的前缀选择对应的encoder，例如：{bcypt}前缀->标识BCYPT算法加密；{noop}->标识不使用任何加密即明文的方式
+     * 密码判读 DaoAuthenticationProvider#additionalAuthenticationChecks
      */
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -89,12 +116,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     /**
      * 静态资源放行【如果存在静态资源的话】
-     *
      * @param webSecurity
      */
-    @Override
+ /*   @Override
     public void configure(WebSecurity webSecurity) {
         // 静态资源放行
         webSecurity.ignoring().antMatchers("/dist/**", "/moudle/**", "/plugins/**");
-    }
+    }*/
 }
