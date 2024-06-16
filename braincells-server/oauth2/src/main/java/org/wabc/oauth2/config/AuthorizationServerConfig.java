@@ -1,4 +1,4 @@
-package org.wabc.authorization.config;
+package org.wabc.oauth2.config;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

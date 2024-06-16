@@ -1,8 +1,8 @@
-package org.wabc.authorization.service.fallback;
+package org.wabc.oauth2.service.fallback;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import org.wabc.authorization.service.UserDetailsFeignClient;
+import org.wabc.oauth2.service.UserDetailsFeignClient;
 import org.wabc.commons.result.ApiResult;
 import org.wabc.commons.result.ResultCode;
 

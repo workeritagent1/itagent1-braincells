@@ -1,8 +1,8 @@
-package org.wabc.system.service.impl;
+package org.wabc.sysadmin.service.impl;
 
-import org.wabc.system.models.entity.SysMenu;
-import org.wabc.system.mapper.SysMenuMapper;
-import org.wabc.system.service.SysMenuService;
+import org.wabc.sysadmin.models.entity.SysMenu;
+import org.wabc.sysadmin.mapper.SysMenuMapper;
+import org.wabc.sysadmin.service.SysMenuService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 

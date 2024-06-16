@@ -1,11 +1,11 @@
-package org.wabc.system.service.impl;
+package org.wabc.sysadmin.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.wabc.commons.dto.SysUserDTO;
-import org.wabc.system.mapper.SysUserMapper;
-import org.wabc.system.models.entity.SysUser;
-import org.wabc.system.service.SysUserService;
+import org.wabc.sysadmin.mapper.SysUserMapper;
+import org.wabc.sysadmin.models.entity.SysUser;
+import org.wabc.sysadmin.service.SysUserService;
 
 /**
  * <p>

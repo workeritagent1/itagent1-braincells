@@ -1,4 +1,4 @@
-package org.wabc.system.controller;
+package org.wabc.sysadmin.controller;
 
 
 import org.springframework.web.bind.annotation.RequestMapping;

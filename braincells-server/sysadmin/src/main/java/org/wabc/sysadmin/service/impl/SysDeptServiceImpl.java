@@ -1,8 +1,8 @@
-package org.wabc.system.service.impl;
+package org.wabc.sysadmin.service.impl;
 
-import org.wabc.system.models.entity.SysDept;
-import org.wabc.system.mapper.SysDeptMapper;
-import org.wabc.system.service.SysDeptService;
+import org.wabc.sysadmin.models.entity.SysDept;
+import org.wabc.sysadmin.mapper.SysDeptMapper;
+import org.wabc.sysadmin.service.SysDeptService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 

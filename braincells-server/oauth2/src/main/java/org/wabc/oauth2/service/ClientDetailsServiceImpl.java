@@ -1,4 +1,4 @@
-package org.wabc.authorization.service;
+package org.wabc.oauth2.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.provider.ClientDetails;

@@ -1,6 +1,6 @@
-package org.wabc.system.service;
+package org.wabc.sysadmin.service;
 
-import org.wabc.system.models.entity.SysDept;
+import org.wabc.sysadmin.models.entity.SysDept;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 /**

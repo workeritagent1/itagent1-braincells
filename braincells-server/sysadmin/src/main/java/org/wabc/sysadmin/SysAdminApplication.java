@@ -9,12 +9,12 @@ import org.springframework.core.env.Environment;
 
 @SpringBootApplication(exclude = {SecurityAutoConfiguration.class})
 @EnableDiscoveryClient
-public class SystemApplication {
+public class SysAdminApplication {
     @Autowired
     Environment environment;
 
     public static void main(String[] args) {
-        SpringApplication.run(SystemApplication.class, args);
+        SpringApplication.run(SysAdminApplication.class, args);
     }
 
 }

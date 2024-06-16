@@ -1,7 +1,7 @@
-package org.wabc.system.service;
+package org.wabc.sysadmin.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import org.wabc.system.models.entity.OauthClientDetails;
+import org.wabc.sysadmin.models.entity.OauthClientDetails;
 
 /**
  * <p>

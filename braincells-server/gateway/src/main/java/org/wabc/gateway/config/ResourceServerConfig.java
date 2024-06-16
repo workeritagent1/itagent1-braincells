@@ -1,4 +1,4 @@
-package org.wabc.commons.gateway.config;
+package org.wabc.gateway.config;
 
 import cn.hutool.core.codec.Base64;
 import cn.hutool.core.convert.Convert;
@@ -163,8 +163,8 @@ public class ResourceServerConfig {
         // 它的作用是将从 JWT 中提取的权限信息映射为 Spring Security 的 GrantedAuthority 实例。
         JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
         // 通过设置 authorityPrefix 和 authoritiesClaimName 属性，你可以配置生成的权限的前缀和声明中存储权限信息的字段名。
-        jwtGrantedAuthoritiesConverter.setAuthorityPrefix("ROLE_");
-        jwtGrantedAuthoritiesConverter.setAuthoritiesClaimName("authorities");
+        jwtGrantedAuthoritiesConverter.setAuthorityPrefix(GatewayConstants.ROLE_UNDERLINE);
+        jwtGrantedAuthoritiesConverter.setAuthoritiesClaimName(GatewayConstants.AUTHORITIES);
 
         JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
         jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter);

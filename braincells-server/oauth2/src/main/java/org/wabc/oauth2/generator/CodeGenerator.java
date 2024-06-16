@@ -1,4 +1,4 @@
-package org.wabc.authorization.generator;
+package org.wabc.oauth2.generator;
 
 import com.baomidou.mybatisplus.generator.FastAutoGenerator;
 import com.baomidou.mybatisplus.generator.config.rules.NamingStrategy;

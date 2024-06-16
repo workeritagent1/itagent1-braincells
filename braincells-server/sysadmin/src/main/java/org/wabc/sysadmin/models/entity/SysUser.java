@@ -1,4 +1,4 @@
-package org.wabc.system.models.entity;
+package org.wabc.sysadmin.models.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;

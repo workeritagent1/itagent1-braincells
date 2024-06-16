@@ -1,4 +1,4 @@
-package org.wabc.system.controller;
+package org.wabc.sysadmin.controller;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.wabc.commons.result.ApiResult;
-import org.wabc.system.service.SysPermissionService;
+import org.wabc.sysadmin.service.SysPermissionService;
 
 /**
  * <p>

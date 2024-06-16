@@ -1,9 +1,9 @@
-package org.wabc.system.config;
+package org.wabc.sysadmin.config;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
-import org.wabc.system.service.SysPermissionService;
+import org.wabc.sysadmin.service.SysPermissionService;
 
 
 /**

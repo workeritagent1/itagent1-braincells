@@ -1,4 +1,4 @@
-package org.wabc.authorization.config;
+package org.wabc.oauth2.config;
 
 /**
  * Class description.
@@ -15,7 +15,7 @@ import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.token.TokenEnhancer;
-import org.wabc.authorization.model.SysUserDetails;
+import org.wabc.oauth2.model.SysUserDetails;
 
 import java.util.HashMap;
 import java.util.Map;

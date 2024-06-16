@@ -1,8 +1,8 @@
-package org.wabc.system.service;
+package org.wabc.sysadmin.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.wabc.commons.dto.SysUserDTO;
-import org.wabc.system.models.entity.SysUser;
+import org.wabc.sysadmin.models.entity.SysUser;
 
 /**
  * <p>

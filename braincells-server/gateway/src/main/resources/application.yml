@@ -19,18 +19,18 @@ spring:
     gateway:
       #   # 相当于访问http://localhost:10000/gateway/authorization/echo/hello 转发到http://localhost:8000/authorization/echo/hello
       routes:
-        - id: authorization
-          uri: lb://authorization
+        - id: oauth2
+          uri: lb://oauth2
           predicates:
-            - Path=/gateway/authorization/**
+            - Path=/gateway/oauth2/**
           filters:
-            - RewritePath=/gateway/authorization/(?<remaining>.*), /authorization/$\{remaining}
+            - RewritePath=/gateway/oauth2/(?<remaining>.*), /oauth2/$\{remaining}
 #            - RewritePath=/gateway/authorization/(?<remaining>.*), /$\{remaining}
 # 通过以上配置，当匹配到 /gateway/** 的请求时，Gateway 将会将请求转发到 http://example.com，并且去除了路径中的 /gateway/ 前缀。
-        - id: system
-          uri: lb://system
+        - id: sysadmin
+          uri: lb://sysadmin
           predicates:
-            - Path=/gateway/system/**
+            - Path=/gateway/sysadmin/**
           filters:
             - RewritePath=/gateway/(?<remaining>.*), /$\{remaining}
 
@@ -40,20 +40,22 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: 'http://localhost:8002/authorization/oauth/public-key'
+          jwk-set-uri: 'http://localhost:8002/oauth2/public-key'
 
-  data:
-    redis:
-      database: 0
-      port: 6379
-      host: 192.168.182.131
-      password: dev123
+  redis:
+    database: 1
+    port: 6379
+    host: 192.168.182.131
+    password: dev123
 
 security:
   ignoreUrls:
     # 去请求认证时，可能还没有授权码，不拦截。
-    - /gateway/authorization/**
+    - /gateway/oauth2/**
     - /gateway/actuator/**
+    - /gateway/test/**
+    - /test/**
+  permissionUrl: http://localhost:10000/gateway/sysadmin/sysPermission/loadPermissionRoles
 logging:
   level:
 #    root: info

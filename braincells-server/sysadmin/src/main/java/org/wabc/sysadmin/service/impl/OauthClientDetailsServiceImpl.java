@@ -1,14 +1,10 @@
-package org.wabc.system.service.impl;
+package org.wabc.sysadmin.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.wabc.system.models.entity.OauthClientDetails;
-import org.wabc.system.mapper.OauthClientDetailsMapper;
-import org.wabc.system.service.OauthClientDetailsService;
-
-import java.util.List;
+import org.wabc.sysadmin.models.entity.OauthClientDetails;
+import org.wabc.sysadmin.mapper.OauthClientDetailsMapper;
+import org.wabc.sysadmin.service.OauthClientDetailsService;
 
 /**
  * <p>

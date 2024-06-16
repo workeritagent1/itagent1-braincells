@@ -1,4 +1,4 @@
-package org.wabc.system.models;
+package org.wabc.sysadmin.models;
 
 /**
  * models包是系统管理模块的普通实体对象集，是普通模块对象集划分包的典型代表。

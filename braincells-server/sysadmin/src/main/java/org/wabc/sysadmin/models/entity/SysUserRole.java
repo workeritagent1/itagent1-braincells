@@ -1,4 +1,4 @@
-package org.wabc.system.models.entity;
+package org.wabc.sysadmin.models.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

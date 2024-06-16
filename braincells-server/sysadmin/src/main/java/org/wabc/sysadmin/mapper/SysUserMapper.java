@@ -1,9 +1,9 @@
-package org.wabc.system.mapper;
+package org.wabc.sysadmin.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 import org.wabc.commons.dto.SysUserDTO;
-import org.wabc.system.models.entity.SysUser;
+import org.wabc.sysadmin.models.entity.SysUser;
 
 /**
  * <p>

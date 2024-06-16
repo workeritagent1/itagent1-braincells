@@ -1,4 +1,4 @@
-package org.wabc.system.service.impl;
+package org.wabc.sysadmin.service.impl;
 
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.json.JSONUtil;
@@ -9,13 +9,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.wabc.commons.constant.GlobalConstants;
-import org.wabc.system.mapper.SysPermissionMapper;
-import org.wabc.system.mapper.SysRoleMapper;
-import org.wabc.system.mapper.SysRolePermissionMapper;
-import org.wabc.system.models.entity.SysPermission;
-import org.wabc.system.models.entity.SysRole;
-import org.wabc.system.models.entity.SysRolePermission;
-import org.wabc.system.service.SysPermissionService;
+import org.wabc.sysadmin.mapper.SysPermissionMapper;
+import org.wabc.sysadmin.mapper.SysRoleMapper;
+import org.wabc.sysadmin.mapper.SysRolePermissionMapper;
+import org.wabc.sysadmin.models.entity.SysPermission;
+import org.wabc.sysadmin.models.entity.SysRole;
+import org.wabc.sysadmin.models.entity.SysRolePermission;
+import org.wabc.sysadmin.service.SysPermissionService;
 
 import java.util.Arrays;
 import java.util.HashMap;

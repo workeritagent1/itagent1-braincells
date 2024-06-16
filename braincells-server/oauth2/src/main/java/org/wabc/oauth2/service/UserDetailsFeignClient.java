@@ -1,9 +1,9 @@
-package org.wabc.authorization.service;
+package org.wabc.oauth2.service;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.wabc.authorization.service.fallback.UserDetailsFeignFallbackClient;
+import org.wabc.oauth2.service.fallback.UserDetailsFeignFallbackClient;
 import org.wabc.commons.dto.SysUserDTO;
 import org.wabc.commons.result.ApiResult;
 

@@ -14,10 +14,10 @@ knife4j:
 server:
   port: 8001
   servlet:
-    context-path: /system
+    context-path: /sysadmin
 spring:
   application:
-    name: system
+    name: sysadmin
   cloud:
     nacos:
       config:
@@ -39,3 +39,6 @@ spring:
     port: 6379
     host: 192.168.182.131
     password: dev123
+logging:
+  level:
+    com.baomidou: DEBUG

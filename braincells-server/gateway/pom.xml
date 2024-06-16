@@ -17,6 +17,12 @@
         <java.version>8</java.version>
     </properties>
     <dependencies>
+        <dependency>
+            <groupId>org.wabc</groupId>
+            <artifactId>commons</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
         <!--gateway依赖 -->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
@@ -60,6 +66,7 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
+
     </dependencies>
 
     <build>

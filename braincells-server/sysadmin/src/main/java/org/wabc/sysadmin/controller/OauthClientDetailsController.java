@@ -1,4 +1,4 @@
-package org.wabc.system.controller;
+package org.wabc.sysadmin.controller;
 
 
 import cn.hutool.core.bean.BeanUtil;
@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.wabc.commons.dto.OauthClientDetailsDTO;
 import org.wabc.commons.result.ApiResult;
-import org.wabc.system.models.entity.OauthClientDetails;
-import org.wabc.system.service.OauthClientDetailsService;
+import org.wabc.sysadmin.models.entity.OauthClientDetails;
+import org.wabc.sysadmin.service.OauthClientDetailsService;
 
 /**
  * <p>

@@ -8,26 +8,25 @@ package org.wabc.commons.constant;
  * @version 1.0
  * @since 2024-05-22
  */
-public interface GlobalConstants {
-
+public class GlobalConstants {
     /**
      * 全局状态-启用
      */
-    Integer STATUS_ENABLE = 1;
+    public static final Integer STATUS_ENABLE = 1;
 
     /**
      * 超级管理员角色编码
      */
-    String ROOT_ROLE_CODE = "ROOT";
+    public static final String ROOT_ROLE_CODE = "ROOT";
 
     /**
      * [ {接口路径:[角色编码]},...]
      */
-    String URL_PERM_ROLES_KEY = "permission:url";
+    public static final String URL_PERM_ROLES_KEY = "permission:url";
 
     /**
      * [{按钮权限标识:[角色编码]},...]
      */
-    String BTN_PERM_ROLES_KEY = "permission:btn";
+    public static final String BTN_PERM_ROLES_KEY = "permission:btn";
 
 }

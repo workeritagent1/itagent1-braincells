@@ -1,4 +1,4 @@
-package org.wabc.authorization.config;
+package org.wabc.oauth2.config;
 
 import io.swagger.v3.oas.models.ExternalDocumentation;
 import io.swagger.v3.oas.models.OpenAPI;

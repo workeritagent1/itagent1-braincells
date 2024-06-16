@@ -1,8 +1,8 @@
-package org.wabc.system.service.impl;
+package org.wabc.sysadmin.service.impl;
 
-import org.wabc.system.models.entity.SysUserRole;
-import org.wabc.system.mapper.SysUserRoleMapper;
-import org.wabc.system.service.SysUserRoleService;
+import org.wabc.sysadmin.models.entity.SysUserRole;
+import org.wabc.sysadmin.mapper.SysUserRoleMapper;
+import org.wabc.sysadmin.service.SysUserRoleService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 

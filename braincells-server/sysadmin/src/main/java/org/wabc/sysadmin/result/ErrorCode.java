@@ -1,4 +1,4 @@
-package org.wabc.system.result;
+package org.wabc.sysadmin.result;
 
 /**
  * 复制于：com.alibaba.nacos.api.model.v2

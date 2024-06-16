@@ -1,0 +1,245 @@
+{
+	"info": {
+		"_postman_id": "ac0ac520-5e66-47ec-bca6-ce56899662c3",
+		"name": "wabc1.0",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "oauth2:password直接请求auth",
+			"request": {
+				"auth": {
+					"type": "bearer"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic Y2xpZW50MDE6MTIzNDU2",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8002/oauth2/oauth/token?grant_type=password&username=admin&password=123456",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8002",
+					"path": [
+						"oauth2",
+						"oauth",
+						"token"
+					],
+					"query": [
+						{
+							"key": "grant_type",
+							"value": "password"
+						},
+						{
+							"key": "username",
+							"value": "admin"
+						},
+						{
+							"key": "password",
+							"value": "123456"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "gateway:password通过gateway请求auth",
+			"request": {
+				"auth": {
+					"type": "bearer"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic Y2xpZW50MDE6MTIzNDU2",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:10000/gateway/oauth2/oauth/token?grant_type=password&username=admin&password=123456",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "10000",
+					"path": [
+						"gateway",
+						"oauth2",
+						"oauth",
+						"token"
+					],
+					"query": [
+						{
+							"key": "grant_type",
+							"value": "password"
+						},
+						{
+							"key": "username",
+							"value": "admin"
+						},
+						{
+							"key": "password",
+							"value": "123456"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "youlai绕过前端直接请求后端网关示例",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic bWFsbC1hZG1pbi13ZWI6MTIzNDU2",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:9999/youlai-auth/oauth/token?username=admin&password=123456&grant_type=captcha&code=8&uuid=e8425f7715bf4fd5b0a0f55124205e18",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9999",
+					"path": [
+						"youlai-auth",
+						"oauth",
+						"token"
+					],
+					"query": [
+						{
+							"key": "username",
+							"value": "admin"
+						},
+						{
+							"key": "password",
+							"value": "123456"
+						},
+						{
+							"key": "grant_type",
+							"value": "captcha"
+						},
+						{
+							"key": "code",
+							"value": "8"
+						},
+						{
+							"key": "uuid",
+							"value": "e8425f7715bf4fd5b0a0f55124205e18"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "gateway通过网关查询权限列表",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX25hbWUiOiJhZG1pbiIsInNjb3BlIjpbImFsbCJdLCJkZXB0SWQiOm51bGwsImlkIjoxLCJleHAiOjE3MTQ0OTUyNTMsImF1dGhvcml0aWVzIjpbInN5c2FkbWluIiwiYWlnY2FkbWluIl0sImp0aSI6IlhiaUhmSzUxakZCRnRkams3dWI1OVdBNVVEayIsImNsaWVudF9pZCI6ImNsaWVudDAxIiwidXNlcm5hbWUiOiJhZG1pbiJ9.a039wqlAij2ctPdp1Fj38WfA5S22o68U-ePJOT8ndnx8CqjGOObk2mRpBxqYA1AUz3oTPekuNfcsTXS0QwiAGl4Q13k4Kukh8uViMfotkQsIFnCaWkT4UqHxKN2IPBdoOztgKzr1H3Y-xaEeQ6oF_kDrVWBvV9t0WbApIZWGjrlF3A05O78Ck34nKlgwtRMsJyGaZlEMCIqp6AkMHE5z_xmx4DMckvf4WkpYs8iscNVyBFwbi9eTFdmaSNynM_iJSqy1x5OYyn5io2aIRUeQXllHek0C8vzlHwEajtSNkadpyx9G9jRPDb7mmYlYSCObFHkfg-S4sO8YBmVy6sStgw",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:10000/gateway/system/sysPermission/loadPermissionRoles",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "10000",
+					"path": [
+						"gateway",
+						"system",
+						"sysPermission",
+						"loadPermissionRoles"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "youlai_携带Auth header获取route",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX25hbWUiOiJhZG1pbiIsInNjb3BlIjpbImFsbCJdLCJkZXB0SWQiOjIsImV4cCI6MTcxNDU1OTQ2MywidXNlcklkIjoyLCJhdXRob3JpdGllcyI6WyJBRE1JTiJdLCJqdGkiOiI1ZWRjM2NmMC05NTIwLTRlOTQtYjBjYS05NzEyMjY2YzE4MTMiLCJjbGllbnRfaWQiOiJtYWxsLWFkbWluLXdlYiIsInVzZXJuYW1lIjoiYWRtaW4ifQ.cCRfqArOc5oP1P3iAfNF2qfagaIYYKKNAPXvhoFwQUxI1L1Y37eMCEOUvAZMNmn64bZxuHhyEZSb0pqMn-EpbZJCDAWpxQryfvl43GcI_Pr8HjAEnZhuX_Cy5gwt01YLuZqvIIQ6Kg3Qix_LfjP-5hOnWkJrLwm4WTqTt-rWbOfoZYUF_XGcQpbqOQHxLt9F9ipw8UpLrJ44MqBiZ2aHH9M399H9q3QTZmpL6PyNpCpTcM05CffSGfX_BK_-d8J6pDnRgFkPSVw-VODMekVKqoZd28587X_3mR7grcOcgztbi8QUWh1NwusTqU7jbc0FKkvCE9Fe_vHa_CK548cQ3g",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:9999/youlai-admin/api/v1/menus/routes",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9999",
+					"path": [
+						"youlai-admin",
+						"api",
+						"v1",
+						"menus",
+						"routes"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "sysadmin:查询权限列表",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8001/sysadmin/sysPermission/loadPermissionRoles",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8001",
+					"path": [
+						"sysadmin",
+						"sysPermission",
+						"loadPermissionRoles"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "oauth2获取公钥",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8002/oauth2/public-key",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8002",
+					"path": [
+						"oauth2",
+						"public-key"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

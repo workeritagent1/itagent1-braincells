@@ -1,4 +1,4 @@
-package org.wabc.system.controller;
+package org.wabc.sysadmin.controller;
 
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.wabc.commons.dto.SysUserDTO;
 import org.wabc.commons.result.ApiResult;
-import org.wabc.system.service.SysUserService;
+import org.wabc.sysadmin.service.SysUserService;
 
 /**
  * <p>

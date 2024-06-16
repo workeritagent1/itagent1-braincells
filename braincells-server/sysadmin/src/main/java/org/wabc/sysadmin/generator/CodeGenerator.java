@@ -1,4 +1,4 @@
-package org.wabc.system.generator;
+package org.wabc.sysadmin.generator;
 
 import com.baomidou.mybatisplus.generator.FastAutoGenerator;
 import com.baomidou.mybatisplus.generator.config.OutputFile;

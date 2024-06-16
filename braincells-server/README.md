@@ -62,6 +62,9 @@ java.lang.StackOverflowError: null
   1.没有加 @Qualifier("ClientDetailsServiceImpl")，走到其他ClientDetailsService实现类了，一直达不到断点。
   2. 没有设置密码，参数遗漏； clientDetails.setClientSecret(oauthClient.getClientSecret());	
   AbstractUserDetailsAuthenticationProvider 调试类
+  
+  单独打包，commons一直找不到报错；需要外层父类打包
+  https://blog.csdn.net/single_0910/article/details/120673729
 ```
 
 # 不要用什么最新版，当小白鼠，太浪费事件时间。

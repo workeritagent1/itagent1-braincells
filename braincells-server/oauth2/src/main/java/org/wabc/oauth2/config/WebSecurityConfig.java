@@ -1,4 +1,4 @@
-package org.wabc.authorization.config;
+package org.wabc.oauth2.config;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,7 +54,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 //                .exceptionHandling(); // 不设置 authenticationEntryPoint，默认将会使用默认的 LoginUrlAuthenticationEntryPoint
 
         http.authorizeRequests()
-                .antMatchers("/login", "/oauth/authorize","/oauth/public-key")
+                .antMatchers("/login", "/oauth/authorize","/public-key")
                 .permitAll()
                 .anyRequest().authenticated()
                 .and().csrf().disable()

@@ -1,12 +1,12 @@
-package org.wabc.commons.gateway.config;
+package org.wabc.gateway.config;
 
-import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.convert.Convert;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import com.alibaba.nacos.api.model.v2.Result;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -18,9 +18,7 @@ import org.springframework.security.web.server.authorization.AuthorizationContex
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.PathMatcher;
-import org.wabc.commons.gateway.utils.GlobalConstants;
-import org.wabc.commons.gateway.result.Result;
-import org.wabc.commons.gateway.service.SysPermissionService;
+import org.wabc.commons.constant.GlobalConstants;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
@@ -36,12 +34,13 @@ import java.util.Map;
  * @since 2024-01-08
  */
 @Component
+// @RequiredArgsConstructor注解时，Lombok会为这个类生成一个构造函数，这个构造函数包含所有被标记为final的字段作为参数。
+@RequiredArgsConstructor
 @Slf4j
 public class ResourceServerManager implements ReactiveAuthorizationManager<AuthorizationContext> {
-    @Autowired
-    RedisTemplate redisTemplate;
-    @Autowired
-    SysPermissionService sysPermissionService;
+    // 使用构造函数方式依赖注入
+    private final RedisTemplate redisTemplate;
+    private final GatewayConfig config;
 
     /**
      * 这个方法覆盖了ReactiveAuthorizationManager接口中的check方法。它接收两个参数：
@@ -57,14 +56,16 @@ public class ResourceServerManager implements ReactiveAuthorizationManager<Autho
         if (request.getMethod() == HttpMethod.OPTIONS) {
             return Mono.just(new AuthorizationDecision(true));
         }
-//        Result<String> result = sysPermissionService.loadPermissionRoles();
+
         // 【声明定义】Ant路径匹配模式，“请求路径”和缓存中权限规则的“URL权限标识”匹配
         PathMatcher pathMatcher = new AntPathMatcher();
 
+        // "/gateway/auth2/oauth/token" ==> "/auth2/oauth/token"
         String path = request.getURI().getPath();
-        path = path.substring("/gateway".length());
+        path = path.substring(config.getContextPath().length());
+
         // Restful接口权限设计 @link https://www.cnblogs.com/haoxianrui/p/14396990.html
-        // 如：POST:/authorization/oauth/token
+        // 如：==> POST:/authorization/oauth/token
         String restfulPath = request.getMethodValue() + ":" + path;
 
         log.info("请求方法:RESTFul请求路径：{}", restfulPath);
@@ -72,41 +73,54 @@ public class ResourceServerManager implements ReactiveAuthorizationManager<Autho
         // http://system/sysPermission/loadPermissionRoles
 
         // 如果token以"bearer "为前缀，到此方法里说明JWT有效即已认证
-        String token = request.getHeaders().getFirst("Authorization");
-        if (StrUtil.isNotBlank(token) && StrUtil.startWithIgnoreCase(token, "Bearer ") ) {
-//            if (path.contains("/app-api")) {
-//                // 商城移动端请求需认证不需鉴权放行（根据实际场景需求）
-//                return Mono.just(new AuthorizationDecision(true));
-//            }
+        String token = request.getHeaders().getFirst(GatewayConstants.AUTHORIZATION);
+        if (StrUtil.isNotBlank(token) && StrUtil.startWithIgnoreCase(token, GatewayConstants.BEARER_SPACE)) {
+            /*
+             if (path.contains("/app-api")) {
+                // 商城移动端请求需认证不需鉴权放行（根据实际场景需求）
+                return Mono.just(new AuthorizationDecision(true));
+             }
+             */
         } else {
             return Mono.just(new AuthorizationDecision(false));
         }
         /**
          * 鉴权开始
-         *
          * 缓存取 [URL权限-角色集合] 规则数据
          * urlPermRolesRules = [{'key':'GET:/api/v1/users/*','value':['ADMIN','TEST']},...]
+         *   {
+         *       "PUT:/system/sysUser/*": [
+         *           "webmaster,sysadmin"
+         *       ],
+         *       "DELETE:/system/sysUser/*": [
+         *           "aigcadmin"
+         *       ],
+         *       "GET:/system/sysUser/*": [
+         *           "sysadmin"
+         *       ],
+         *       "POST:/system/sysUser/*": [
+         *           "blogadmin"
+         *       ]
+         *   }
          */
         Map<String, Object> urlPermRolesRules = redisTemplate.opsForHash().entries(GlobalConstants.URL_PERM_ROLES_KEY);
 
         log.info("urlPermRolesRules==>\n"+JSONUtil.toJsonPrettyStr(urlPermRolesRules));
 
         // 根据请求路径获取有访问权限的角色列表
-        List<String> authorizedRoles = new ArrayList<>(); // 拥有访问权限的角色
-        boolean requireCheck = false; // 是否需要鉴权，默认未设置拦截规则不需鉴权
+        List<String> authorizedRoles = new ArrayList<>(); // 拥有访问权限的角色 // 为空表示不需要鉴权；默认未设置拦截规则不需鉴权
 
-        for (Map.Entry<String, Object> permRoles : urlPermRolesRules.entrySet()) {
-            String perm = permRoles.getKey();
-            if (pathMatcher.match(perm, restfulPath)) {
-                List<String> roles = Convert.toList(String.class, permRoles.getValue());
-                authorizedRoles.addAll(roles);
-                if (requireCheck == false) {
-                    requireCheck = true;
-                }
-            }
-        }
+        // 使用Java 8的Stream API进行路径匹配
+        urlPermRolesRules.entrySet().stream()
+                .filter(entry -> pathMatcher.match(entry.getKey(), restfulPath))
+                .forEach(entry -> {
+                    List<String> roles = Convert.toList(String.class, entry.getValue());
+                    authorizedRoles.addAll(roles);
+                });
+
         // 没有设置拦截规则放行
-        if (requireCheck == false) {
+        if (authorizedRoles.isEmpty()) {
+            log.debug("对该url: {}没有设置拦截规则放行",restfulPath);
             return Mono.just(new AuthorizationDecision(true));
         }
 
@@ -116,12 +130,13 @@ public class ResourceServerManager implements ReactiveAuthorizationManager<Autho
                 .flatMapIterable(Authentication::getAuthorities)
                 .map(GrantedAuthority::getAuthority)
                 .any(authority -> {
-                    String roleCode = StrUtil.removePrefix(authority,"ROLE_");// ROLE_ADMIN移除前缀ROLE_得到用户的角色编码ADMIN
+                    // ROLE_ADMIN移除前缀ROLE_得到用户的角色编码ADMIN
+                    String roleCode = StrUtil.removePrefix(authority,"ROLE_");
                     if (GlobalConstants.ROOT_ROLE_CODE.equals(roleCode)) {
                         return true; // 如果是超级管理员则放行
                     }
-                    boolean hasAuthorized = CollectionUtil.isNotEmpty(authorizedRoles) && authorizedRoles.contains(roleCode);
-                    System.out.println("========>"+authority+":"+JSONUtil.toJsonStr(authorizedRoles)+":"+roleCode);
+                    boolean hasAuthorized = authorizedRoles.contains(roleCode);
+                    log.debug("有权访问的角色: {}   当前用户遍历到的角色:   {}",JSONUtil.toJsonStr(authorizedRoles),authority);
                     return hasAuthorized;
                 })
                 .map(AuthorizationDecision::new)
@@ -163,7 +178,7 @@ public class ResourceServerManager implements ReactiveAuthorizationManager<Autho
         log.info(JSONUtil.parse(result).toStringPretty());
         /*{
                 "PUT:/system/sysUser/*": [
-                "webmaster"
+                "webmaster,sysadmin"
             ],
                 "DELETE:/system/sysUser/*": [
                 "aigcadmin"

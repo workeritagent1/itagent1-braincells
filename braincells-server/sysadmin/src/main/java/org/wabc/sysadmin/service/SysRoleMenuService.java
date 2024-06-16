@@ -1,6 +1,6 @@
-package org.wabc.system.service;
+package org.wabc.sysadmin.service;
 
-import org.wabc.system.models.entity.SysRoleMenu;
+import org.wabc.sysadmin.models.entity.SysRoleMenu;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 /**

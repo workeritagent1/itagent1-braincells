@@ -9,7 +9,7 @@ server:
   port: 8002
   servlet:
     # 授权服务器
-    context-path: /authorization
+    context-path: /oauth2
 # spring-doc 接口文档
 springdoc:
   api-docs:
@@ -18,7 +18,7 @@ knife4j:
   enable: true # 是否启用 knife4j 增强,如果只是使用 knife4j 的 UI,则可以关闭
 spring:
   application:
-    name: authorization
+    name: oauth2
   cloud:
     nacos:
       config:

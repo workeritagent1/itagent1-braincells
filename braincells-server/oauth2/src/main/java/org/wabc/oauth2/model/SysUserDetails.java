@@ -1,4 +1,4 @@
-package org.wabc.authorization.model;
+package org.wabc.oauth2.model;
 
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;

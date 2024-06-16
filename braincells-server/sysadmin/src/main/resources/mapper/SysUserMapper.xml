@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="org.wabc.system.mapper.SysUserMapper">
+<mapper namespace="org.wabc.sysadmin.mapper.SysUserMapper">
+
     <!-- 用户认证信息映射 -->
-    <resultMap id="AuthUserMap" type="org.wabc.system.entity.SysUser">
-        <id property="userId" column="id" jdbcType="BIGINT"/>
+    <resultMap id="SysUserAuthInfoMap" type="org.wabc.commons.dto.SysUserDTO">
+        <id property="id" column="id" jdbcType="BIGINT"/>
         <result property="username" column="username" jdbcType="VARCHAR"/>
         <result property="password" column="password" jdbcType="VARCHAR"/>
         <result property="status" column="status" jdbcType="BOOLEAN"/>
@@ -14,9 +15,9 @@
     </resultMap>
 
     <!-- 根据用户名获取认证信息 -->
-    <select id="getAuthInfoByUsername" resultMap="AuthUserMap">
+    <select id="getAuthInfoByUsername" resultMap="SysUserAuthInfoMap">
         SELECT
-            t1.id userId,
+            t1.id id,
             t1.username,
             t1.nickname,
             t1.PASSWORD,
@@ -30,4 +31,6 @@
         WHERE
             t1.username = #{username} and t1.deleted=0
     </select>
+
+
 </mapper>

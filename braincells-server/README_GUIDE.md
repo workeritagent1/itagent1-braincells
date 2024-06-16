@@ -73,3 +73,10 @@ micro-oauth2-auth：Oauth2认证服务，负责对登录用户进行认证，整
 micro-oauth2-api：受保护的API服务，用户鉴权通过后可以访问该服务，不整合Spring Security+Oauth2。
 包名称：wabc ==> worker agent brain cell 
 ```
+
+## 
+```
+为了减少盗用和窃取，JWT不建议使用HTTP协议来传输代码，而是使用加密的HTTPS协议进行传输。
+
+凡事纠结的地方，以少花时间为准
+```

@@ -1,4 +1,4 @@
-package org.wabc.system.models.po;
+package org.wabc.sysadmin.models.po;
 
 /**
  * Class description.

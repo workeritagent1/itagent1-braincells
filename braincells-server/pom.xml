@@ -14,10 +14,10 @@
 
     <!--添加子模块到父项目-->
     <modules>
-        <module>system</module>
+        <module>commons</module>
+        <module>sysadmin</module>
         <module>gateway</module>
-        <module>authorization</module>
-        <module>oauth2-demo</module>
+        <module>oauth2</module>
     </modules>
 
     <parent>
@@ -181,6 +181,11 @@
             <artifactId>spring-cloud-starter-loadbalancer</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-webflux-ui</artifactId>
+            <version>1.8.0</version>
+        </dependency>
 
         <!-- JUnit 5 -->
         <dependency>

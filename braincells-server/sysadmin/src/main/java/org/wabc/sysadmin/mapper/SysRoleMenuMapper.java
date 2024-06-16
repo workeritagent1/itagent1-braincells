@@ -1,8 +1,8 @@
-package org.wabc.system.mapper;
+package org.wabc.sysadmin.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
-import org.wabc.system.models.entity.SysRoleMenu;
+import org.wabc.sysadmin.models.entity.SysRoleMenu;
 
 /**
  * <p>

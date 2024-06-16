@@ -1,4 +1,4 @@
-package org.wabc.authorization.service;
+package org.wabc.oauth2.service;
 
 import cn.hutool.json.JSONUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -10,7 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import org.wabc.authorization.model.SysUserDetails;
+import org.wabc.oauth2.model.SysUserDetails;
 import org.wabc.commons.dto.SysUserDTO;
 import org.wabc.commons.result.ApiResult;
 import org.wabc.commons.result.ResultCode;
