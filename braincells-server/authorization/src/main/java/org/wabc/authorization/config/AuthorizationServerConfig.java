@@ -1,4 +1,4 @@
-package org.wabc.authorization.config;
+package org.wabc.commons.authorization.config;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,7 +71,7 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     }
 
     /**
-     * 配置授权服务器的安全性相关设置，例如设置访问令牌的密钥、允许的请求方式
+     * 允许ClientSecret明文方式保存并且可以通过表单提交
      */
     @Override
     public void configure(AuthorizationServerSecurityConfigurer security) throws Exception {

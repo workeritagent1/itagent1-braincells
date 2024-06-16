@@ -1,8 +1,8 @@
-package org.wabc.gateway.service;
+package org.wabc.commons.gateway.service;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.wabc.gateway.result.Result;
+import org.wabc.commons.gateway.result.Result;
 
 /**
  * Class description.

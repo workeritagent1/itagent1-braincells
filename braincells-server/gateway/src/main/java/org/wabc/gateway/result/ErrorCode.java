@@ -1,4 +1,4 @@
-package org.wabc.gateway.result;
+package org.wabc.commons.gateway.result;
 
 /**
  * 复制于：com.alibaba.nacos.api.model.v2

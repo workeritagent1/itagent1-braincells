@@ -1,4 +1,4 @@
-package org.wabc.gateway.result;
+package org.wabc.commons.gateway.result;
 
 
 import java.io.Serializable;

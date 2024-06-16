@@ -1,4 +1,4 @@
-package org.wabc.gateway;
+package org.wabc.commons.gateway;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpEntity;

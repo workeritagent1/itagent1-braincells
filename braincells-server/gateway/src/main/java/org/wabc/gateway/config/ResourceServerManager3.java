@@ -3,7 +3,6 @@
 //import cn.hutool.core.collection.CollectionUtil;
 //import cn.hutool.core.convert.Convert;
 //import cn.hutool.core.util.StrUtil;
-//import com.youlai.common.constant.GlobalConstants;
 //import lombok.RequiredArgsConstructor;
 //import lombok.extern.slf4j.Slf4j;
 //import org.springframework.data.redis.core.RedisTemplate;
@@ -17,6 +16,7 @@
 //import org.springframework.stereotype.Component;
 //import org.springframework.util.AntPathMatcher;
 //import org.springframework.util.PathMatcher;
+//import org.wabc.gateway.utils.GlobalConstants;
 //import reactor.core.publisher.Mono;
 //
 //import java.util.ArrayList;

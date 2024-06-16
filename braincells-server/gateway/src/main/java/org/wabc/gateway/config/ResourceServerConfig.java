@@ -1,4 +1,4 @@
-package org.wabc.gateway.config;
+package org.wabc.commons.gateway.config;
 
 import cn.hutool.core.codec.Base64;
 import cn.hutool.core.convert.Convert;
@@ -80,7 +80,7 @@ public class ResourceServerConfig {
         http.oauth2ResourceServer()
                 .jwt()
                 .jwtAuthenticationConverter(jwtAuthenticationConverter())
-                // .publicKey(rsaPublicKey())
+//                 .publicKey(rsaPublicKey())
                 .jwkSetUri(jwkSetUri)
                 .and().authenticationEntryPoint(authenticationEntryPoint());
 

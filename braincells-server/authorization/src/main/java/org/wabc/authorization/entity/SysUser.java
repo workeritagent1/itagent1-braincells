@@ -1,4 +1,4 @@
-package org.wabc.authorization.entity;
+package org.wabc.commons.authorization.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;

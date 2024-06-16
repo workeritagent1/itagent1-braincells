@@ -1,4 +1,4 @@
-package org.wabc.authorization.controller;
+package org.wabc.commons.authorization.controller;
 
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
