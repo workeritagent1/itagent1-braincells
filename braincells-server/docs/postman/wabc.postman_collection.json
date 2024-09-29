@@ -1,0 +1,130 @@
+{
+	"info": {
+		"_postman_id": "1180a3b8-5d85-47f1-a075-d0195f9a787c",
+		"name": "wabc",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "资源拥有者凭据机制（密码模式）",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8002/authorization/oauth/token?grant_type=password&client_id=client01&client_secret=123456&username=admin&password=123456",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8002",
+					"path": [
+						"authorization",
+						"oauth",
+						"token"
+					],
+					"query": [
+						{
+							"key": "grant_type",
+							"value": "password"
+						},
+						{
+							"key": "client_id",
+							"value": "client01"
+						},
+						{
+							"key": "client_secret",
+							"value": "123456"
+						},
+						{
+							"key": "username",
+							"value": "admin"
+						},
+						{
+							"key": "password",
+							"value": "123456"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "客户端凭据模式",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8002/authorization/oauth/token?grant_type=client_credentials&client_id=client01&client_secret=123456",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8002",
+					"path": [
+						"authorization",
+						"oauth",
+						"token"
+					],
+					"query": [
+						{
+							"key": "grant_type",
+							"value": "client_credentials"
+						},
+						{
+							"key": "client_id",
+							"value": "client01"
+						},
+						{
+							"key": "client_secret",
+							"value": "123456"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "授权码模式",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8002/authorization/oauth/token?grant_type=authorization_code&client_id=client01&client_secret=123456&code=S2Sl4R&redirect_uri=https://baidu.com",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8002",
+					"path": [
+						"authorization",
+						"oauth",
+						"token"
+					],
+					"query": [
+						{
+							"key": "grant_type",
+							"value": "authorization_code"
+						},
+						{
+							"key": "client_id",
+							"value": "client01"
+						},
+						{
+							"key": "client_secret",
+							"value": "123456"
+						},
+						{
+							"key": "code",
+							"value": "S2Sl4R"
+						},
+						{
+							"key": "redirect_uri",
+							"value": "https://baidu.com"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

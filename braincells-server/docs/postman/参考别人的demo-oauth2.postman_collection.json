@@ -1,0 +1,51 @@
+{
+	"info": {
+		"_postman_id": "167732f0-5637-4d3f-9907-f42a9e81f907",
+		"name": "参考别人的demo-oauth2",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "http://localhost:8080/oauth/token?grant_type=authorization_code&client_id=torlesse002&client_secret=123456&code=2s7tsK&redirect_uri=https://baidu.com",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/oauth/token?grant_type=authorization_code&client_id=torlesse002&client_secret=123456&code=2s7tsK&redirect_uri=https://baidu.com",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"oauth",
+						"token"
+					],
+					"query": [
+						{
+							"key": "grant_type",
+							"value": "authorization_code"
+						},
+						{
+							"key": "client_id",
+							"value": "torlesse002"
+						},
+						{
+							"key": "client_secret",
+							"value": "123456"
+						},
+						{
+							"key": "code",
+							"value": "2s7tsK"
+						},
+						{
+							"key": "redirect_uri",
+							"value": "https://baidu.com"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
