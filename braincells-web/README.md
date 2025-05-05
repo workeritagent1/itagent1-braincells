@@ -7,6 +7,7 @@ https://gitee.com/youlaiorg/vue3-element-admin
 # 安装 pnpm
 npm install pnpm -g
 
+# 配置环境变量：C:\Users\xxx\AppData\Roaming\npm
 # 安装依赖
 pnpm install
 
