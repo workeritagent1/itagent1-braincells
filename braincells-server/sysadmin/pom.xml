@@ -28,9 +28,37 @@
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
 
+        <!--
+         spring-boot-starter会包含以下内容：
+            spring-boot：这是Spring Boot的核心库，包含自动配置、SpringApplication类等核心功能。
+            spring-boot-autoconfigure：提供自动配置的支持，根据类路径中的依赖自动配置Spring应用。
+            spring-boot-starter-logging：默认的日志Starter，通常包括Logback和SLF4J的实现。
+            snakeyaml：用于处理YAML配置文件。
+            jakarta.annotation-api：Java注解API的支持。
+            spring-core：Spring框架的核心库，包含基础工具类等。
+            spring-context：Spring的上下文和依赖注入功能。
+         -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+
+        <!-- spring-boot-starter 是 Spring Boot 提供的一个基础启动器（Starter），它包含了构建 Spring Boot 应用程序所必需的基本依赖。
+        这些依赖是 Spring Boot 应用程序运行的核心支持，包括自动配置、日志记录和 YAML 配置文件支持等。-->
+        <!-- Spring Boot WebMVC 支持 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <!-- OpenAPI3接口文档+Knife4j UI增强 -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-ui</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.github.xiaoymin</groupId>
+            <artifactId>knife4j-springdoc-ui</artifactId>
         </dependency>
 
         <dependency>
@@ -50,10 +78,6 @@
         <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-generator</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.velocity</groupId>
-            <artifactId>velocity-engine-core</artifactId>
         </dependency>
 
         <dependency>

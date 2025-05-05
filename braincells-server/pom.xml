@@ -8,71 +8,116 @@
     <version>0.0.1-SNAPSHOT</version>
     <name>itagent1-germcell</name>
     <description>project for all man free from surviving and material well-being life</description>
-<!--   <packaging>pom</packaging> 指定了 Maven 项目的打包方式为 "pom"，这表示该项目不会生成可执行的 JAR 或 WAR 文件，
+
+    <!--<packaging>pom</packaging>指定了 Maven 项目的打包方式为 "pom"，这表示该项目不会生成可执行的 JAR 或 WAR 文件，
     而是作为一个纯粹的 Maven 项目对象模型 (POM) 文件存在。这通常用于父项目或聚合项目，用于管理子模块的依赖和构建配置。-->
     <packaging>pom</packaging>
 
     <!--添加子模块到父项目-->
     <modules>
         <module>commons</module>
-        <module>sysadmin</module>
-        <module>gateway</module>
         <module>oauth2</module>
+        <module>gateway</module>
+        <module>sysadmin</module>
     </modules>
 
-    <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.7.18</version>
-        <relativePath/> <!-- lookup parent from repository -->
-    </parent>
-
+    <!--
+     一、springcloud父子项目的maven依赖管理的思想：
+        1. 生态内依赖（Spring Boot/Cloud Starter等）：完全交给BOM托管，不重复显式声明
+          在父POM dependencyManagement 中引入Spring Boot/Spring Cloud（及Alibaba）BOM（type=import），所有官方starter
+    自动版本锁定。
+          子模块直接引入starter依赖（不用也不应该在dependencyManagement里单独声明starter），也不用写版本号。
+        2. 生态外/第三方常用依赖（如Lombok、Hutool、Fastjson、MyBatis-Plus等）：需在父POM显式声明且统一管理版本
+          在父POM <dependencyManagement> 里用property集中声明好所有三方依赖的版本（即白名单）。父 POM 通过 <dependencyManagement> 声明所有依赖的版本和 Scope。
+          对这些依赖，建议父POM <dependencies> 一起全局引入（不写版本不写scope），这样所有子模块都会自动有这些依赖。
+        3. 子模块依赖最小化、按需引用，只写业务需要、不重复引入不必要包
+          子模块引用starter时只需写 groupId+artifactId，无需写版本。
+          父POM中dependencies声明过的依赖子模块不用再重复声明。
+          只引入自己业务需要的依赖，保持开发包纯净、无冗余。
+      二、最推荐的方案是：父项目通过dependencyManagement集中管理版本 + 子项目按需引入依赖。此方案在保证版本统一的同时，最大化模块的
+    灵活性和可维护性。对于复杂生态（如Spring Cloud），结合BOM文件进一步简化管理。
+        1.dependencyManagement里只是声明依赖，并不实现引入，因此子项目需要显示的声明需要用的依赖。如果不在子项目中声明依赖，
+         是不会从父项目中继承下来的；只有在子项目中写了该依赖项，并且没有指定具体版本，才会从父项目中继承该项，
+         并且version和scope都读取自父pom;另外如果子项目中指定了版本号，那么会使用子项目中指定的jar版本。
+        2.所有子模块必须使用 Lombok；在父POM dependencyManagement dependencies中声明版本号和scope作用域；
+         在父POM<dependencies>节点中声明引入,无需版本和作用域，继承 dependencyManagement 配置完成统一引入。
+     -->
     <!--依赖版本统一管理-->
     <properties>
+        <java.version>1.8</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <java.version>1.8</java.version>
-        <tomcat.version>9.0.54</tomcat.version>
+
+        <!-- spring boot,spring cloud，Spring Cloud Alibaba -->
         <spring-boot.version>2.7.18</spring-boot.version>
-        <!-- spring cloud -->
         <spring-cloud.version>2021.0.5</spring-cloud.version>
         <spring-cloud-alibaba.version>2021.0.5.0</spring-cloud-alibaba.version>
+
+        <mysql.version>8.0.33</mysql.version>
+        <!-- spring Boot2 默认集成数据库连接池HikariCP；零配置开箱即用，减少维护成本 -->
+
+        <redisson.version>3.17.7</redisson.version>
+
+        <mybatis-plus.version>3.5.3.1</mybatis-plus.version>
+
+       <!-- Lombok 是一个 Java 库，通过注解自动生成代码（如 getter/setter、构造函数、日志等），减少样板代码，提高开发效率-->
+        <lombok.version>1.18.38</lombok.version>
+
+        <!-- 认证授权方案；使用OAuth2.1 + OIDC（OpenID Connect）+ JWT  -->
+        <!--  Spring Authorization Server 支持 OAuth 2.1 and OpenID Connect 1.0 -->
+        <spring-authorization-server.version>0.4.4</spring-authorization-server.version>
+        <!-- JWT核心依赖 Nimbus（Spring官方推荐） -->
+        <nimbus-jose-jwt.version>9.37.3</nimbus-jose-jwt.version>
+
+        <!--日志：Spring Boot 默认配置（Logback + SLF4J）
+        强烈建议用 logback-spring.xml 管理生产日志，功能灵活，适用于多环境。
+        子模块引入：spring-boot-starter，配置 logback-spring.xml即可。
+        -->
+        <!-- SpringDoc 版本 +Knife4j 版本 -->
+        <springdoc.version>1.7.0</springdoc.version>
+        <knife4j.version>3.0.3</knife4j.version>
+
         <!-- Sentinel Version:1.8.6 Nacos Version:2.2.0  -->
 
+        <!-- 代码生成器mybatis-plus-generator 和 Freemarker 模板引擎版本 -->
+        <freemarker.version>2.3.32</freemarker.version>
+
         <hutool.version>5.8.5</hutool.version>
-        <nimbus-jose-jwt.version>9.16.1</nimbus-jose-jwt.version>
+        <jackson-databind.version>2.13.5</jackson-databind.version>
+        <commons-lang3.version>3.12.0</commons-lang3.version>
 
-        <!-- db && orm -->
-        <mysql.version>8.0.19</mysql.version>
-        <druid.version>1.2.4</druid.version>
-        <mybatis-plus.version>3.5.1</mybatis-plus.version>
-        <velocity-engine.version>2.3</velocity-engine.version>
-        <knife4j-openapi3-spring.version>4.3.0</knife4j-openapi3-spring.version>
+        <!-- 测试相关依赖版本 -->
+        <!--spring-boot-test.version-->
+        <h2.version>2.2.224</h2.version>
+        <!--mybatis-plus-test版本同mybatis-plus.version-->
 
-        <!-- api doc -->
-        <knife4j.version>2.0.9</knife4j.version>
-        <swagger.version>1.6.2</swagger.version>
     </properties>
 
-    <!--  dependencyManagement里只是声明依赖，并不实现引入，因此子项目需要显示的声明需要用的依赖。如果不在子项目中声明依赖，
-        是不会从父项目中继承下来的；只有在子项目中写了该依赖项，并且没有指定具体版本，才会从父项目中继承该项，
-        并且version和scope都读取自父pom;另外如果子项目中指定了版本号，那么会使用子项目中指定的jar版本。-->
+    <!--  dependencyManagement统一版本管理 -->
     <dependencyManagement>
-
         <dependencies>
             <!--Spring Cloud 相关依赖-->
+            <!-- 子项目中可以直接引入 spring-boot-starter-web -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring-boot.version}</version>
+                <!--
+                 <type>pom</type> 表示依赖的类型为 "pom"，意味着这个依赖项实际上是一个 Maven 项目对象模型 (POM) 文件，而不是一个 JAR 文件或其他类型的构建文件。
+                 <scope>import</scope> 表示依赖的范围为 "import"，这种依赖声明通常用于在 Maven 的 <dependencyManagement> 中引入其他项目的依赖管理信息，以便统一管理项目的依赖版本;
+                 仅用于<dependencyManagement>中，表示从指定的POM文件中导入依赖管理配置，相当于将外部POM的<dependencyManagement>内容合并到当前文件中。
+                 普通依赖（无import）会引入实际的库文件。import仅继承版本管理规则，不引入任何代码。
+                -->
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-dependencies</artifactId>
                 <version>${spring-cloud.version}</version>
-                <!--
-                    <type>pom</type> 表示依赖的类型为 "pom"，意味着这个依赖项实际上是一个 Maven 项目对象模型 (POM) 文件，而不是一个 JAR 文件或其他类型的构建文件。
-                    <scope>import</scope> 表示依赖的范围为 "import"，这种依赖声明通常用于在 Maven 的 <dependencyManagement> 中引入其他项目的依赖管理信息，以便统一管理项目的依赖版本
-                。-->
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-
             <!--Spring Cloud & Alibaba 相关依赖-->
             <dependency>
                 <groupId>com.alibaba.cloud</groupId>
@@ -81,27 +126,12 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-dependencies</artifactId>
-                <version>${spring-boot.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-
-            <!-- oauth2 -->
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-starter-oauth2-server</artifactId>
-            </dependency>
-
-            <!-- JWT工具 -->
-            <dependency>
-                <groupId>com.nimbusds</groupId>
-                <artifactId>nimbus-jose-jwt</artifactId>
-                <version>${nimbus-jose-jwt.version}</version>
-            </dependency>
+            <!-- 引入以上dependencies后，子项目都直接引用如下依赖，不需要声明版本号
+                spring-boot-starter-security
+                spring-cloud-starter-alibaba-nacos-discovery
+                spring-cloud-starter-gateway
+                spring-boot-starter-webflux
+              -->
 
             <dependency>
                 <groupId>mysql</groupId>
@@ -109,107 +139,235 @@
                 <version>${mysql.version}</version>
             </dependency>
 
+            <!-- 缓存：
+             多级缓存（Redis + Caffeine）: 本地缓存（Caffeine）作为一级缓存，Redis 作为二级缓存，减少网络 IO;
+             常规redis默认操作：Spring Data Redis： spring-boot-starter-data-redis，不排除 Lettuce;
+             分布式锁操作：Redisson：提供分布式锁、队列、限流等高级功能；redisson-spring-boot-starter；暂时用不上。
+             本地缓存选用：Caffeine 是目前性能最好的本地缓存库；暂时用不上。
+             -->
+            <!-- spring-boot-starter-data-redis由bom统一管理，无需显示引入-->
+          <!--  <dependency>
+                <groupId>org.redisson</groupId>
+                <artifactId>redisson-spring-boot-starter</artifactId>
+                <version>${redisson.version}</version>
+            </dependency>-->
+
+            <!-- MyBatis-Plus 核心库;作用：提供@TableId、@TableField等注解，管理mapper层;也为代码生成器准备。 -->
             <dependency>
                 <groupId>com.baomidou</groupId>
                 <artifactId>mybatis-plus-boot-starter</artifactId>
                 <version>${mybatis-plus.version}</version>
             </dependency>
-
-            <!-- 代码自动生成器依赖-->
+            <!-- 代码生成器也顺序思想和临近关联，写在此处；代码生成器核心依赖 MyBatis-Plus Generator -->
             <dependency>
                 <groupId>com.baomidou</groupId>
                 <artifactId>mybatis-plus-generator</artifactId>
                 <version>${mybatis-plus.version}</version>
+                <!-- 作用：代码生成器核心，支持逆向工程生成Entity/Mapper/Service/Controller -->
             </dependency>
-            <!-- Velocity 模板引擎 -->
+            <!-- 代码生成器依赖 Freemarker 模板引擎 -->
             <dependency>
-                <groupId>org.apache.velocity</groupId>
-                <artifactId>velocity-engine-core</artifactId>
-                <version>${velocity-engine.version}</version>
+                <groupId>org.freemarker</groupId>
+                <artifactId>freemarker</artifactId>
+                <version>${freemarker.version}</version>
+                <!-- 作用：渲染代码模板文件（.ftl），控制生成代码的格式和结构 -->
             </dependency>
 
-            <!-- 分布式锁 -->
             <dependency>
-                <groupId>org.redisson</groupId>
-                <artifactId>redisson</artifactId>
-                <version>${redisson.version}</version>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${lombok.version}</version>
+                <!-- provided 表示该依赖（这里是 Lombok）在编译时和测试时可用;
+                Lombok 是一个编译时注解处理器，它通过修改字节码在编译阶段生成代码（如 getter/setter）。-->
+                <scope>provided</scope>
             </dependency>
 
-            <!-- Swagger 3.0.0 相关依赖 -->
+            <!-- oauth2.1
+                以下四组依赖包含在上文spring-boot-dependencies中；父项目此处无需声明版本；子项目按需直接引入坐标取用，
+                0.Spring Security（认证、鉴权安全框架基础）； 虽然client,server会默认也引入，
+                spring-boot-starter-security
+                1. OAuth 2.1 客户端功能（如需支持第三方登录）
+                spring-boot-starter-oauth2-client
+                2. OAuth 2.1 资源服务器（保护 API）； JWT 支持：Spring Security OAuth2 Resource Server（用于JWT令牌的签发与校验，服务端、网关等用）
+                spring-boot-starter-oauth2-resource-server
+                3. OAuth 2.1 授权服务器（自建单点登录）
+                spring-boot-starter-oauth2-resource-server
+                4. JWT 与 JOSE 支持（必须）
+                nimbus-jose-jwt
+            -->
+            <!-- Spring Authorization Server（支持OAuth2.1、OIDC、JWT标准实现，Spring官方认证服务器） -->
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-oauth2-authorization-server</artifactId>
+                <version>0.4.1</version> <!-- 0.4.x 是兼容 Spring Boot 2.7.x 的稳定版本，确保选择对应你的Spring Boot版本 -->
+            </dependency>
+            <!-- JWT工具依赖
+            nimbus-jose-jwt是Spring Security/Spring Authorization Server内置推荐、主流库；
+            严格遵循JWT/JWS/JWE/JWK等多标准，算法支持极全；比jjwt更高安全性
+             -->
+            <dependency>
+                <groupId>com.nimbusds</groupId>
+                <artifactId>nimbus-jose-jwt</artifactId>
+                <version>${nimbus-jose-jwt.version}</version>
+            </dependency>
+
+            <!-- Swagger的增强UI实现 Knife4j  -->
+            <!-- SpringDoc OpenAPI 1.7.0（支持 OpenAPI 3 规范）
+             基于 OpenAPI 3 规范自动生成 API 文档，分别支持 WebMVC（普通服务）和 WebFlux（网关）；
+             starter 是一个约定俗成的术语，用于表示一种“开箱即用”的依赖封装模式。下面的3组依赖不归spring-boot-dependencies管理；
+             -->
+
+            <!-- OpenAPI3接口文档+Knife4j UI增强 -->
+            <!-- 普通模块：业务服务文档 -->
+            <dependency>
+                <groupId>org.springdoc</groupId> <!-- OpenAPI3标准文档生成，Spring Boot 2.x推荐-->
+                <artifactId>springdoc-openapi-ui</artifactId>
+                <version>${springdoc.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.xiaoymin</groupId>
+                <artifactId>knife4j-springdoc-ui</artifactId>
+                <version>${knife4j.version}</version> <!-- Knife4j增强UI，基于springdoc-openapi-ui 1.x -->
+            </dependency>
+            <!-- 网关模块：聚合所有子服务API文档-->
+            <dependency>
+                <groupId>com.github.xiaoymin</groupId>
+                <artifactId>knife4j-gateway-spring-boot-starter</artifactId>
+                <version>${knife4j.version}</version> <!-- Gateway端Knife4j API聚合starter，支持srpignboot 2.x/3.x -->
+            </dependency>
+
+            <!--
+             日志方案： spring Boot 默认配置（Logback + SLF4J）方案；
+               通过子模块引入spring-boot-starter和配置文件logback-spring.xml管理日志;
+         spring-boot-starter会包含以下内容：
+            spring-boot：这是Spring Boot的核心库，包含自动配置、SpringApplication类等核心功能。
+            spring-boot-autoconfigure：提供自动配置的支持，根据类路径中的依赖自动配置Spring应用。
+            spring-boot-starter-logging：默认的日志Starter，通常包括Logback和SLF4J的实现。
+            snakeyaml：用于处理YAML配置文件。
+            jakarta.annotation-api：Java注解API的支持。
+            spring-core：Spring框架的核心库，包含基础工具类等。
+            spring-context：Spring的上下文和依赖注入功能。
+            -->
+            <!--spring-boot-starter-->
+
+            <!-- 常用工具库 -->
+
+            <dependency>
+                <groupId>cn.hutool</groupId>
+                <artifactId>hutool-all</artifactId>
+                <version>${hutool.version}</version>
+            </dependency>
+            <!-- Jackson Databind; alibaba Fastjson 漏洞太多太高不推荐使用 -->
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${jackson-databind.version}</version>
+            </dependency>
+            <!-- Apache Commons Lang3 -->
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>${commons-lang3.version}</version>
+            </dependency>
+
+            <!-- 推荐的测试依赖  -->
+            <!-- 测试场景映射
+                    单元测试	JUnit 5 + Mockito	Service 逻辑验证、工具类测试
+                    集成测试：@SpringBootTest + H2	数据库 CRUD 测试、MyBatis Mapper 层验证
+                    Web 层测试：@WebMvcTest + MockMvc	Controller 接口权限校验、返回值格式验证
+                    API 测试：MockMvc 或 TestRestTemplate 测试 REST 接口。
+             -->
+            <!-- spring-boot-starter-test 已包含以下关键测试组件：
+                Unit Jupiter、Mockito 模拟外部依赖、AssertJ 流式断言库、Hamcrest 匹配器库、
+                JSONassert JSON 断言工具、JsonPath JSON 查询工具
+             -->
+            <!-- H2 内存数据库 -->
+            <dependency>
+                <groupId>com.h2database</groupId>
+                <artifactId>h2</artifactId>
+                <version>${h2.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <!-- MyBatis-Plus 测试库 mybatis-plus-boot-starter-test -->
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-boot-starter-test</artifactId>
+                <version>${mybatis-plus.version}</version>
+                <scope>test</scope>
+            </dependency>
 
         </dependencies>
     </dependencyManagement>
 
-    <!-- dependencies即使在子项目中不写该依赖项，那么子项目仍然会从父项目中继承该依赖项（全部继承） -->
+    <!-- 所有子模块公共依赖
+    dependencies即使在子项目中不写该依赖项，那么子项目仍然会从父项目中继承该依赖项（全部继承） -->
     <dependencies>
+        <!--代码生成器依赖-->
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-boot-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-generator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.freemarker</groupId>
+            <artifactId>freemarker</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>${lombok.version}</version>
+            <!--scope provided已在dependencyManagement中标识。-->
         </dependency>
+
         <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-all</artifactId>
-            <version>${hutool.version}</version>
         </dependency>
-        <!-- knife4j openapi3 接口文档 -->
         <dependency>
-            <groupId>com.github.xiaoymin</groupId>
-            <artifactId>knife4j-openapi3-spring-boot-starter</artifactId>
-            <version>${knife4j-openapi3-spring.version}</version>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
         </dependency>
 
-        <!-- nacos相关以来；不显式声明版本好，直接依赖com.alibaba.cloud版本确定
-          注册中心 -->
+        <!-- 测试依赖 -->
         <dependency>
-            <groupId>com.alibaba.cloud</groupId>
-            <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
-        </dependency>
-        <!-- 配置中心 -->
-        <dependency>
-            <groupId>com.alibaba.cloud</groupId>
-            <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
-        </dependency>
-
-        <!-- openfeign依赖 1. http客户端选择okhttp 2. loadbalancer替换ribbon -->
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-openfeign</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-loadbalancer</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-webflux-ui</artifactId>
-            <version>1.8.0</version>
-        </dependency>
-
-        <!-- JUnit 5 -->
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-api</artifactId>
-            <version>5.8.2</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-engine</artifactId>
-            <version>5.8.2</version>
-            <scope>test</scope>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-boot-starter-test</artifactId>
         </dependency>
 
     </dependencies>
 
+    <!--
+     继承插件配置：如果子项目中未定义 <build> 部分，或者定义了 <build> 但未定义 <plugins> 部分，子项目会自动继承父项目中定义的插件配置。
+     覆盖插件配置：如果子项目中定义了 <build> 和 <plugins> 部分，它将覆盖父项目的插件配置。未在子项目中定义的插件不会被继承。 -->
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>
+
 
 </project>

@@ -39,6 +39,16 @@ spring:
     port: 6379
     host: 192.168.182.131
     password: dev123
-logging:
-  level:
-    com.baomidou: DEBUG
+#logging:
+#  level:
+#    com.baomidou: DEBUG
+
+# 日志由logback-spring.xml 管理统一管理
+# 如下只是临时调试示例
+#logging:
+#  level:
+#    root: INFO
+#  file:
+#    name: logs/app.log  # 统一日志路径
+#  pattern:
+#    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"

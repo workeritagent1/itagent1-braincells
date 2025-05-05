@@ -17,17 +17,27 @@
         <java.version>8</java.version>
     </properties>
     <dependencies>
+
         <dependency>
             <groupId>org.wabc</groupId>
             <artifactId>commons</artifactId>
             <version>0.0.1-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
-        <!--gateway依赖 -->
+        <!-- Spring Cloud Gateway 核心依赖 -->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-gateway</artifactId>
         </dependency>
+
+        <!-- 网关模块：聚合所有子服务API文档-->
+        <dependency>
+            <groupId>com.github.xiaoymin</groupId>
+            <artifactId>knife4j-gateway-spring-boot-starter</artifactId>
+        </dependency>
+
+
+
         <!-- alibaba在2020版之后不使用ribbon,这里使用loadbalancer代替,然后在配置文件中禁用ribbon
            预防Service Unavailable, status=503错误
         -->
