@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--
+  部门表 MyBatis-Plus XML映射文件
+  数据表：sys_dept
+  @author wabc
+  @date 2025-05-18
+-->
+<mapper namespace="org.wabc.system.mapper.SysDeptMapper">
+
+    <resultMap id="BaseResultMap" type="org.wabc.system.entity.SysDept">
+        <result property="id" column="id" />
+        <result property="name" column="name" />
+        <result property="code" column="code" />
+        <result property="parentId" column="parent_id" />
+        <result property="sort" column="sort" />
+        <result property="status" column="status" />
+        <result property="description" column="description" />
+        <result property="createdBy" column="created_by" />
+        <result property="createdTime" column="created_time" />
+        <result property="updatedBy" column="updated_by" />
+        <result property="updatedTime" column="updated_time" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, name, code, parent_id, sort, status, description, created_by, created_time, updated_by, updated_time
+    </sql>
+
+</mapper>

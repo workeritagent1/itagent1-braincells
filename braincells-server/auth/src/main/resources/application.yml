@@ -1,0 +1,77 @@
+# ==================== [服务基础配置] ====================
+server:
+  port: 9001
+  servlet:
+    context-path: /auth  # 统一上下文路径
+
+# ==================== [Nacos服务发现与配置中心] ====================
+spring:
+  application:
+    name: auth
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 192.168.182.131:8848  # 服务注册地址
+        namespace: wabc  # 环境隔离
+        group: DEFAULT_GROUP  # 业务分组
+      config:
+        server-addr: 192.168.182.131:8848
+        file-extension: yaml
+        refresh-enabled: true  # 启用动态刷新
+
+  # ==================== [数据源配置] ====================
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://192.168.182.131:3306/wabc?useSSL=true&useUnicode=true&characterEncoding=utf-8&serverTimezone=UTC
+    username: root
+    password: dev123
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      idle-timeout: 30000
+      max-lifetime: 1800000
+
+  # ==================== [OAuth2服务器配置] ====================
+  security:
+    oauth2:
+      authorization-server:
+        issuer-url: http://auth:9001  # OIDC颁发者地址
+      resourceserver:
+        jwt:
+          jwk-set-uri: ${spring.security.oauth2.authorization-server.issuer-url}/oauth2/jwks  # JWK端点
+
+  # ==================== [Redis令牌存储] ====================
+  redis:
+    host: 192.168.182.131
+    password: dev123
+    database: 1  # 使用独立数据库存储令牌
+    timeout: 7200
+
+# ======================== Knife4j/OpenAPI文档 =============================
+knife4j:
+  enable: true  # 启用Knife4j
+  setting:
+    language: zh-CN  # 语言设置为中文
+
+springdoc:
+  api-docs:
+    enabled: true
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: alpha  # 按字母排序
+  openapi:
+    info:
+      title: "认证授权服务API"
+      description: "OAuth2.1 + Spring Authorization Server"
+      version: "1.0"
+  group-configs: # 接口分组
+    - group: 'auth'
+      paths-to-match: /auth/**
+
+# ======================== 日志打印 ======================================
+logging:
+  config: classpath:logback-spring.xml
+  level:
+    com.wabc: debug
+    org.springframework.security: debug  # 调试模式下开启Security详细日志

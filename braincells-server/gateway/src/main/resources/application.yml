@@ -1,62 +1,82 @@
 server:
-  port: 10000
+  port: 8888
   servlet:
-    context-path: /gateway
+    context-path: /gateway  # 统一上下文路径
+# =================== Nacos配置 =======================
 spring:
   application:
     name: gateway
-  main:
-    # 【spring-boot-starter-webflux】 和 springboot作为web项目启动必不可少的 【spring-boot-starter-web】 出现冲突。
-    web-application-type: reactive
   cloud:
     nacos:
-      config:
-        import-check:
-          enabled: false
+      # 服务注册与发现
       discovery:
-        # server-addr: 127.0.0.1:8848
         server-addr: 192.168.182.131:8848
+        namespace: wabc
+        group: DEFAULT_GROUP
+        # 动态配置管理,获取配置，至少需要配置gatewway.yml文件
+      config:
+        server-addr: 192.168.182.131:8848
+        namespace: wabc  #  续写group默认为  group: DEFAULT_GROUP
+        file-extension: yaml
+        refresh-enabled: true
+# ================== Gateway核心配置 ==================
     gateway:
-      #   # 相当于访问http://localhost:10000/gateway/authorization/echo/hello 转发到http://localhost:8000/authorization/echo/hello
       routes:
-        - id: oauth2
-          uri: lb://oauth2
+        # auth服务路由
+        - id: auth
+          uri: lb://auth
           predicates:
-            - Path=/gateway/oauth2/**
-          filters:
-            - RewritePath=/gateway/oauth2/(?<remaining>.*), /oauth2/$\{remaining}
-#            - RewritePath=/gateway/authorization/(?<remaining>.*), /$\{remaining}
-# 通过以上配置，当匹配到 /gateway/** 的请求时，Gateway 将会将请求转发到 http://example.com，并且去除了路径中的 /gateway/ 前缀。
-        - id: sysadmin
-          uri: lb://sysadmin
+            - Path=/auth/**
+        # system服务（RBAC后台管理）
+        - id: system
+          uri: lb://system
           predicates:
-            - Path=/gateway/sysadmin/**
-          filters:
-            - RewritePath=/gateway/(?<remaining>.*), /$\{remaining}
+            - Path=/system/**
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedHeaders: "*"
+            allowedMethods: "*"
+# =============JWT校验相关/可信header转发=======================
+gateway:
+  jwt:
+    enable: true
+    exclude-paths:
+      - /auth/oauth2/token
+      - /v3/api-docs
+  hmac:
+    secret: ${HMAC_SECRET:hmacDemoSecret} # 用配置中心，实际要安全管理
+    enable: true
 
-
-  ##配置RSA的公钥访问地址
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          jwk-set-uri: 'http://localhost:8002/oauth2/public-key'
-
+  # ===========Redis缓存（IP限流/会话存储等）=
   redis:
-    database: 1
-    port: 6379
     host: 192.168.182.131
     password: dev123
+    database: 1  # 使用独立数据库存储令牌
+    timeout: 7200
+# =============OpenAPI3/Knife4j接口文档（自带API）=======
+knife4j:
+  enable: true
+  setting:
+    language: zh-CN  # 语言设置为中文
 
-security:
-  ignoreUrls:
-    # 去请求认证时，可能还没有授权码，不拦截。
-    - /gateway/oauth2/**
-    - /gateway/actuator/**
-    - /gateway/test/**
-    - /test/**
-  permissionUrl: http://localhost:10000/gateway/sysadmin/sysPermission/loadPermissionRoles
+springdoc:
+  api-docs:
+    enabled: true
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: alpha  # 按字母排序
+  openapi:
+    info:
+      title: "系统网关服务接口"
+      description: "负责所有微服务请求入口统一路由和鉴权"
+      version: "v1.0"
+
+# ===============日志配置============
 logging:
+  config: classpath:logback-spring.xml
   level:
-#    root: info
-    root: debug
+    com.wabc: debug
+    org.springframework.cloud.gateway: debug  # 调试模式下开启网关详细日志

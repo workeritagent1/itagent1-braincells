@@ -127,4 +127,86 @@ body x-www-form-urlencoded
     password 123456    
 ```
 
-## 
+## 项目结构
+```
+
+项目最推荐的包目录结构是怎样的？
+braincells-server                         // 父工程  
+├── pom.xml                              // 全局依赖和BOM版本管理  
+├── commons/                             // 公共&工具模块  
+├── auth/                                // 认证与授权服务 (原oauth2，建议更名为auth)  
+├── gateway/                             // 网关服务  
+├── system/                              // 系统管理服务 (原sysadmin，建议更名为system)  
+└── [robot/]                             // 后续机器人扩展（预留）  
+
+domain,entitymodel概念
+domain（领域层/模型）  
+└─ entity（实体，领域对象，最核心且有唯一Id）  
+└─ value object（值对象，没有唯一Id，表达一个属性集合）  
+└─ service（领域服务）  
+└─ ... （其他领域组件）  
+model（传递用的各种模型，包括 entity, DTO, VO, Result 等）  
+
+
+commons模块示例：
+com.wabc.commons  
+├── core/  
+│   ├── entity/          # 通用实体基类  
+│   │   └── base/        # 审计、主键等基本父类  
+│   ├── model/           # 通用响应、结果包装、分页、通用DTO/VO  
+│   └── exception/       # 通用异常、异常枚举  
+├── util/                # 各类工具类（如日期、加密、字符串、Bean、常用类型转换等）  
+├── constant/            # 全局常量  
+├── enums/               # 通用枚举（如状态枚举、性别、开关等）  
+├── config/              # 公共配置类（Bean工具、全局配置、序列化等）  
+├── annotation/          # 通用自定义注解  
+├── handler/             # 通用全局处理（如全局异常处理、统一响应等）  
+├── generator/           # **代码生成器**相关（如Mybatis-Plus Generator/Freemarker模板/配置/代码主类）  
+│   ├── template/        # 代码生成模板  
+│   ├── config/          # 生成器的配置  
+│   └── xxxGenerator.java# 生成主逻辑  
+└── validator/           # 通用参数/注解校验器  
+
+system 系统管理模块 示例
+com.wabc.system  
+├── SystemApplication.java  
+├── config/                  // Swagger、MyBatis、缓存、业务配置等  
+├── controller/  
+│   ├── UserController.java  
+│   ├── RoleController.java  
+│   ├── MenuController.java  
+│   ├── DeptController.java  
+│   └── ...  
+├── service/  
+│   └── impl/  
+├── mapper/                  // MyBatis-Plus Mapper  
+├── entity/                  // 业务实体  
+│   ├── SysUser.java  
+│   ├── SysRole.java  
+│   ├── SysDept.java  
+│   ├── SysMenu.java  
+│   └── ...  
+├── dto/                     // 参数对象  
+├── vo/                      // 返回对象  
+├── util/  
+├── security/                // RBAC动态权限核心、上下文、登录上下文等  
+├── exception/  
+├── handler/                 // 全局异常、统一响应  
+```
+
+## 项目最基础的数据库骨架表
+```
+sys_user", "sys_role", "sys_dept", "sys_user_role", "sys_menu", "sys_role_menu", 
+"auth_oauth2_client", "auth_oauth2_authorization"
+```
+## 代码生成器
+```
+[FullSmartCodeGenerator.java](commons%2Fsrc%2Fmain%2Fjava%2Forg%2Fwabc%2Fcommons%2Fcodegenerator%2FFullSmartCodeGenerator.java)
+查看源代码可以打开文件覆盖。
+```
+
+## 配置文件
+```
+yml文件中有nacos config配置时，需要在nacos至少配置空文件，否则会报错。
+wabc  gateway.yml
+```

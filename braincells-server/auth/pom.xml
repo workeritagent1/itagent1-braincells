@@ -2,19 +2,18 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <!--引入父项目 替换掉之前的springboot父项目（spring-boot-starter-parent）-->
     <parent>
         <groupId>org.wabc</groupId>
         <artifactId>braincell-server</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
     <groupId>org.wabc</groupId>
-    <artifactId>gateway</artifactId>
+    <artifactId>auth</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>gateway</name>
-    <description>gateway</description>
+    <name>oauth2</name>
+    <description>oauth2</description>
     <properties>
-        <java.version>8</java.version>
+
     </properties>
     <dependencies>
 
@@ -89,6 +88,18 @@
 
         <dependency>
             <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-oauth2-authorization-server</artifactId>
+            <!-- 【用途】实现 OAuth2.1 服务端/授权流程（必须含PKCE）-->
+        </dependency>
+
+        <!-- OAuth2 认证客户端-->
+      <!--  <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-oauth2-client</artifactId>
+        </dependency>-->
+
+        <dependency>
+            <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-oauth2-jose</artifactId>
             <!-- 【用途】JWT、JWK签名验证支持 -->
         </dependency>
@@ -122,6 +133,22 @@
 
     <build>
 
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <excludes>
+                    <exclude>**/*.jks</exclude>
+                </excludes>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>false</filtering>
+                <includes>
+                    <include>**/*.jks</include>
+                </includes>
+            </resource>
+        </resources>
     </build>
 
 </project>

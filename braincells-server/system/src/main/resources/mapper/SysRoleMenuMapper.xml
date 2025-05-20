@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--
+  角色与权限关联表 MyBatis-Plus XML映射文件
+  数据表：sys_role_menu
+  @author wabc
+  @date 2025-05-18
+-->
+<mapper namespace="org.wabc.system.mapper.SysRoleMenuMapper">
+
+    <resultMap id="BaseResultMap" type="org.wabc.system.entity.SysRoleMenu">
+        <result property="roleId" column="role_id" />
+        <result property="menuId" column="menu_id" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        role_id, menu_id
+    </sql>
+
+</mapper>
