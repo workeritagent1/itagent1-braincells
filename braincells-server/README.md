@@ -359,3 +359,56 @@ auth+system模块 oauth2.1认证授权方案；使用Spring Authorization Server
 
 部分源码逻辑参考：OAuth2AuthorizationEndpointFilter的doFilterInternal方法中	
 ```
+## html-demo情况和Spring Session Redis实现session共享说明：
+```
+1.如果是浏览器端作为oauth2_registered_client，用户登录，oauth2_registered_client表不能设置密码；
+因为浏览器端的携带client密码会导致F12密码泄露；有风险。有code_challenge和自由login.html页面，足够安全；这是标准做法；
+2.你的实际需求是本地只跑多个服务（如10001，10002…），不想用nginx负载均衡，直接用浏览器tab/窗口访问各端口，能否用Spring Session Redis实现session共享，
+演示OAuth2流程？
+答案是：
+一、浏览器直接访问不同端口，能否验证Session共享？
+结论：可以达到效果，只需注意细节，完全可验证Spring Session Redis分布式session共享功能。
+原理说明
+浏览器的cookie作用域是域名（host）+ path；端口不是区分cookie的组成部分。
+3.oauth2.1认证授权方案；使用Spring Authorization Server + OAuth 2.1 + OpenID Connect (OIDC) + JWT 】最优做法
+ 1) OAuth 2.1标准强制所有授权码授权所有客户端，都必须使用PKCE
+ 2）Spring Session Redis是否必需？
+   a. ①标准Web/表单授权流程（即使是前后端分离）,②全REST/JSON响应模式只要你用了授权码模式，并且SAS没有被你完全无状态改造，只要你用了授权码模式，并且SAS没有被你完全无状态改造，
+ 它还是会用Session来存授权中间态。此时如果是多实例服务/集群，Spring Session Redis还是必需的。
+   b. 只有在你完全自定义实现所有认证授权接口，将所有状态转为前端/Token等存储，且Spring Authorization Server彻底无Session依赖时，才可以不用。
+3. 最主流最优的OAuth 2.1规范做法（2025年主流实践）
+ A. 必须做法
+  授权码流（Authorization Code + PKCE）：适用于所有类型的前端、移动、服务端
+  强制PKCE：所有客户端都要求
+  OpenID Connect（OIDC）支持：身份ID Token认证
+  JWT作为access_token/id_token：方便前后端无连接校验和分析
+  HTTPS加密传输：所有接口必须
+  客户端注册中心持久化：数据库/配置中心
+  刷新令牌（refresh_token）轮换机制：防止重放，提升安全性
+  范围（scope）控制 + 授权同意页
+  资源服务器只用公钥/JWK/JWT本地验证，不查数据库
+ B. 可选加固
+  多因子认证（MFA）
+  短时效access_token，长效refresh_token
+  开启及时注销/撤销token端点
+ C. 会话状态存储实践
+  单实例或高可用：不用分布式session也可以，本地session就能保证。但是现代微服务/多实例就需Spring Session Redis这种方案，无论API风格或者前后端分离与否。
+  如彻底追求无状态，必须重写SAS默认的HttpSession依赖点（生产极少使用）。
+  4. 结论串联
+  PKCE是OAuth 2.1授权码流必须，所有场景都不可省略。
+  Spring Session Redis只有在你希望高可用、分布式时必须使用，即使RESTful、前后端分离，也要保证所有节点Session一致；单实例则可不用但失去高可用能力。
+  最优做法是：授权码+PKCE+OIDC+JWT+HTTPS+（可选）MFA+令牌轮换+分布式session（如Redis）+最少权限/最短时效/客户端注册持久化。
+  
+4.注意将来强制扩展成https
+5.auth模块包括entity:sysuser,sysrole,sysuserrole;虽然有点与system重复；但是为了内聚auth用户认证授权的逻辑；这样只增加了loadUserByName,和根据user查roles的极少量数据查询逻辑；方案很好。
+
+session状态共享示例：
+同一个浏览器：
+页面1： http://localhost:10001/auth/login.html  
+ 登录
+页面2： http://localhost:10003/auth/oauth2/authorize?response_type=code&client_id=demo-client&redirect_uri=http%3A%2F%2Flocalhost%3A10001%2Fauth%2Fcallback.html&scope=openid+profile&code_challenge=AjdtRriakFAAyI0KcSBcKlMgQh8-c9CT3RyrcthwqMM&code_challenge_method=S256&state=yQbPteRJYWnfARZn
+ 勾选
+页面1：http://localhost:10001/auth/callback.html?code=FAuPaq8Qy6OsagHXfPpaCm1dHe-ubEg_fCMT7UkqyA65WkqQJ9RTYLJvkJxhhnwloWbO10VXdwCEubxak5hx8Mm7Bi6a2MsPAlmCaBzM2sn3IFk7-966eybxGwmxive3&state=yQbPteRJYWnfARZn
+获取token成功；
+
+```

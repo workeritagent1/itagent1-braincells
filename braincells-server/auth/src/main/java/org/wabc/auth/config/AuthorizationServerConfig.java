@@ -262,9 +262,9 @@ public class AuthorizationServerConfig {
 //        return new JdbcOAuth2AuthorizationService(new JdbcTemplate(dataSource), registeredClientRepository, rowMapper);
 //    }
 
-//    /**
-//     * 自定义Session序列化方式（JSON格式）,针对HttpSession对象在Redis里的读写；避免JDK序列化带来未来不可控bug;
-//     */
+    /**
+     * 自定义Session序列化方式（JSON格式）,针对HttpSession对象在Redis里的读写；避免JDK序列化带来未来不可控bug;
+     */
 //    @Bean
 //    public RedisSerializer<Object> springSessionDefaultRedisSerializer() {
 //        return new GenericJackson2JsonRedisSerializer();

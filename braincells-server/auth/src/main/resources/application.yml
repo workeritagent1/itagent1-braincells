@@ -1,6 +1,6 @@
 # ==================== [服务基础配置] ====================
 server:
-  port: 10001
+  port: 10003
   servlet:
     context-path: /auth  # 统一上下文路径
 
@@ -52,13 +52,13 @@ spring:
         max-idle: 8              # 连接池最大空闲连接数
         min-idle: 1              # 连接池最小空闲连接数
         max-wait: 5000           # 当连接池无可用连接时，最大等待时间（毫秒）
-#
-#  session:                       # Spring Session相关配置
-#    store-type: redis            # 会话存储类型选Redis（默认是none或server的本地Session）
-#    timeout: 30m                 # HttpSession的超时时间，30分钟不操作自动过期
-#    redis:
-#      namespace: "auth:sessions" # Redis里Session键的前缀名，方便区分不同服务/用途场景
-#      flush-mode: on-save        # Session刷新模式：on-save表示变更时才写回Redis，immediate表示每次操作属性就立刻写，默认推荐on-save节约IO
+
+  session:                       # Spring Session相关配置
+    store-type: redis            # 会话存储类型选Redis（默认是none或server的本地Session）
+    timeout: 30m                 # HttpSession的超时时间，30分钟不操作自动过期
+    redis:
+      namespace: "auth:sessions" # Redis里Session键的前缀名，方便区分不同服务/用途场景
+      flush-mode: on-save        # Session刷新模式：on-save表示变更时才写回Redis，immediate表示每次操作属性就立刻写，默认推荐on-save节约IO
 
 # ================= 安全配置 ============================
 security:

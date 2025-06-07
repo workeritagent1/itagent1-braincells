@@ -54,11 +54,11 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
-       <!-- &lt;!&ndash; Spring Session + Redis 集成，微服务之间共享session状态&ndash;&gt;
+        <!-- Spring Session + Redis 集成，微服务之间共享session状态-->
         <dependency>
             <groupId>org.springframework.session</groupId>
             <artifactId>spring-session-data-redis</artifactId>
-        </dependency>-->
+        </dependency>
         <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-boot-starter</artifactId>

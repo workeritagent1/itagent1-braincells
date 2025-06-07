@@ -56,7 +56,7 @@
         <mysql.version>8.0.33</mysql.version>
         <!-- spring Boot2 默认集成数据库连接池HikariCP；零配置开箱即用，减少维护成本 -->
 
-        <spring.session.version>3.3.0</spring.session.version>
+        <spring.session.version>2.7.0</spring.session.version>
         <redisson.version>3.17.7</redisson.version>
 
 
