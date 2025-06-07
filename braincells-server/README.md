@@ -320,3 +320,42 @@ Spring Security 拦截，跳转 /login.html，用户输入账号密码。
 2.login.html页面输入用户密码登录；login后端接口根据登录情况返回授权页面，点击授权
 2.
 ```
+## auth+system模块 oauth2.1认证授权方案基于静态html页面完成
+```
+auth+system模块 oauth2.1认证授权方案；使用Spring Authorization Server + OAuth 2.1 + OpenID Connect (OIDC) + JWT; 基于auth../resource/static下的静态html页面的授权认证模式完成。
+| 步骤 | 参与者          | 关键动作                          | 代码/配置点                                                                                              | 技术说明                                                                                                     |
+|------|----------------|-----------------------------------|----------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------|
+| 1.   | 用户浏览器      | 访问 index.html                   | `GET http://localhost:10001/auth/index.html`                                                             | 前端首页加载                                                                                                |
+				index.html             	--->	检查不是授权相关端点AuthorizationServerConfig:authorizationServerSecurityFilterChain:EndpointsMatcher(),
+												检查defaultSecurityFilterChain:rest接口，没有对应，检查静态资源/index.html，存在即返回页面	
+| 2.   | 用户浏览器      | 点击登录按钮生成PKCE参数          | index.html JavaScript代码：<br>`sha256()`生成code_challenge<br>`genRandomStr()`生成code_verifier         | PKCE(Proof Key for Code Exchange)防护授权码拦截攻击                                                        |
+| 3.   | 用户浏览器      | 跳转授权端点                      | `GET /auth/oauth2/authorize?response_type=code&client_id=demo-client&...`                                | 携带PKCE参数发起OAuth2授权请求                                                                             |
+				index.html-点击登录
+					发起 授权请求/oauth2/authorize?callback----> 检查是授权相关端EndpointsMatcher()，并且没有授权成功，返回 重定向地址/login.html 
+																[requestCache.saveRequest: 保存原始/oauth2/authorize?xxx原始请求到Session]
+| 4.   | 授权服务器      | 拦截授权端点请求                  | AuthorizationServerConfig:<br>`authorizationServerSecurityFilterChain()`<br>`EndpointsMatcher`            | 安全链优先级1处理OAuth2端点                                                                                |
+| 5.   | 授权服务器      | 检测未认证用户，重定向到登录页    | `LoginUrlAuthenticationEntryPoint("/login.html")`                                                        | 返回302重定向到登录页                                                                                      |
+				重定向/login.html         ---> 检查端点、接口，返回静态资源/login.html
+| 6.   | 用户浏览器      | 加载登录页面                      | `GET /auth/login.html`                                                                                   | 静态资源放行配置：<br>`defaultSecurityFilterChain()`<br>`antMatchers("/login.html").permitAll()`           |
+| 7.   | 用户            | 提交登录表单                      | `POST /auth/login`<br>参数：username=demo&password=demo123456                                            | Spring Security表单登录端点                                                                                |
+| 8.   | 授权服务器      | 执行认证逻辑                      | CustomAuthenticationProvider:<br>`authenticate()`<br>校验密码和账户状态                                  | 密码加密校验：<br>`passwordEncoder.matches()`                                                              |
+| 9.   | 授权服务器      | 认证成功处理                      | `authenticationSuccessHandler()`<br>记录日志并重定向回授权端点                                           | 重建原始授权请求                                                                                            |
+				login.html-输入用户名密码 
+				发起 post请求/login      --->   formLogin..loginProcessingUrl("/login")处理...customAuthenticationProvider，认证成功后，
+                                                从[requestCache.saveRequest: 保存原始请求到Session]中取出拿到原始/oauth2/authorize?xxx
+| 10.  | 授权服务器      | 检查客户端设置                    | RegisteredClient配置：<br>`ClientSettings.requireAuthorizationConsent(true)`                             | 需要用户确认授权                                                                                            |                                                                     
+												要求客户授权确认，返回授权确认页面
+| 11.  | 授权服务器      | 生成授权确认页面                  | Spring SAS内置`ConsentPage`                                                                              | 展示请求的scope（openid, profile）                                                                         |
+| 12.  | 用户            | 确认授权                          | 点击"Submit Consent"按钮                                                                                 | 用户同意授予权限                                                                                            |
+| 13.  | 授权服务器      | 生成授权码                        | `JdbcOAuth2AuthorizationService`<br>写入oauth2_authorization表                                           | 授权码关联：<br>- client_id<br>- PKCE参数<br>- 用户身份                                                                 |
+| 14.  | 授权服务器      | 重定向到回调地址                  | `302 Redirect`<br>`Location: http://localhost:10001/auth/callback.html?code=AUTHORIZATION_CODE`          | 携带授权码重定向                                                                                            |
+| 15.  | 用户浏览器      | 处理回调页面                      | callback.html JavaScript代码：<br>`URLSearchParams`解析授权码                                            | 从URL提取授权码                                                                                             |
+| 16.  | 用户浏览器      | 请求令牌端点                      | `POST /auth/oauth2/token`<br>Body参数：<br>`grant_type=authorization_code`<br>`code=AUTHORIZATION_CODE`<br>`code_verifier=...` | 交换令牌的关键请求                                                                                          |
+| 17.  | 授权服务器      | 验证PKCE和授权码                  | `JdbcOAuth2AuthorizationService`<br>校验code_verifier的SHA256哈希                                        | 防止授权码拦截攻击                                                                                          |
+| 18.  | 授权服务器      | 生成JWT令牌                       | JwtKeyConfig使用RSA密钥对：<br>- access_token<br>- id_token(OIDC)                                        | 令牌包含：<br>- 用户信息(AuthUserDetails)<br>- 权限(roles)                                                  |
+| 19.  | 授权服务器      | 返回令牌响应                      | JSON响应：<br>`{ access_token, token_type, expires_in, id_token }`                                       | 符合OAuth2.1规范                                                                                            |
+| 20.  | 用户浏览器      | 存储令牌                          | `localStorage.setItem("access_token", ...)`                                                              | 前端安全存储                                                                                                |
+| 21.  | 用户浏览器      | 显示登录成功                      | callback.html更新DOM显示令牌信息                                                                         | 完成认证流程                                                                                                |
+
+部分源码逻辑参考：OAuth2AuthorizationEndpointFilter的doFilterInternal方法中	
+```
