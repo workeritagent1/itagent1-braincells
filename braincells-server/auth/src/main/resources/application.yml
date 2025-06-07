@@ -1,6 +1,6 @@
 # ==================== [服务基础配置] ====================
 server:
-  port: 9001
+  port: 10001
   servlet:
     context-path: /auth  # 统一上下文路径
 
@@ -8,21 +8,27 @@ server:
 spring:
   application:
     name: auth
+    # 从 Nacos 加载 auth.yaml 配置文件
+    # 这里只写data ID，其他由下边的config获取；实际开发都推荐 optional: 前缀，防止 Nacos 掉线影响本地启动。
+  config:
+    import: optional:nacos:auth.yaml
   cloud:
     nacos:
       discovery:
         server-addr: 192.168.182.131:8848  # 服务注册地址
-        namespace: wabc  # 环境隔离
-        group: DEFAULT_GROUP  # 业务分组
+        # 不写 group，默认就是 DEFAULT_GROU
+        namespace: 028ef566-8810-487a-8c5d-9fbc8717ba63  # wabc命名空间id, 环境隔离
       config:
         server-addr: 192.168.182.131:8848
+        namespace: 028ef566-8810-487a-8c5d-9fbc8717ba63 # wabc命名空间id, 环境隔离
+        group: DEFAULT_GROUP
         file-extension: yaml
         refresh-enabled: true  # 启用动态刷新
 
   # ==================== [数据源配置] ====================
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://192.168.182.131:3306/wabc?useSSL=true&useUnicode=true&characterEncoding=utf-8&serverTimezone=UTC
+    url: jdbc:mysql://192.168.182.131:3306/2025wabc?useSSL=true&useUnicode=true&characterEncoding=utf-8&serverTimezone=UTC
     username: root
     password: dev123
     hikari:
@@ -31,21 +37,36 @@ spring:
       idle-timeout: 30000
       max-lifetime: 1800000
 
-  # ==================== [OAuth2服务器配置] ====================
-  security:
-    oauth2:
-      authorization-server:
-        issuer-url: http://auth:9001  # OIDC颁发者地址
-      resourceserver:
-        jwt:
-          jwk-set-uri: ${spring.security.oauth2.authorization-server.issuer-url}/oauth2/jwks  # JWK端点
-
   # ==================== [Redis令牌存储] ====================
-  redis:
-    host: 192.168.182.131
-    password: dev123
-    database: 1  # 使用独立数据库存储令牌
-    timeout: 7200
+  # Spring Session Redis 分布式 回话状态管理
+  redis:                         # Redis相关配置
+    host: 192.168.182.131        # Redis服务器地址
+    port: 6379                   # Redis端口，默认6379
+    password: dev123             # Redis连接密码
+    database: 0                 # 使用的Redis数据库（0-15），本配置用第10个库存Session，避免和业务等混用；  # 使用独立数据库存储令牌
+    timeout: 10000               # 连接超时时间（毫秒），10秒，超时抛异常
+
+    lettuce:                     # lettuce是Spring Boot默认的Redis客户端；以下是连接池配置
+      pool:
+        max-active: 16           # 连接池最大活动连接数
+        max-idle: 8              # 连接池最大空闲连接数
+        min-idle: 1              # 连接池最小空闲连接数
+        max-wait: 5000           # 当连接池无可用连接时，最大等待时间（毫秒）
+
+  session:                       # Spring Session相关配置
+    store-type: redis            # 会话存储类型选Redis（默认是none或server的本地Session）
+    timeout: 30m                 # HttpSession的超时时间，30分钟不操作自动过期
+    redis:
+      namespace: "auth:sessions" # Redis里Session键的前缀名，方便区分不同服务/用途场景
+      flush-mode: on-save        # Session刷新模式：on-save表示变更时才写回Redis，immediate表示每次操作属性就立刻写，默认推荐on-save节约IO
+
+# ================= 安全配置 ============================
+security:
+  oauth2:
+    resourceserver:
+      jwt:
+        issuer-uri: http://auth:9001  # OIDC颁发者地址
+        jwk-set-uri: ${security.oauth2.resourceserver.jwt.issuer-uri}/oauth2/jwks  # JWK端点
 
 # ======================== Knife4j/OpenAPI文档 =============================
 knife4j:
@@ -74,4 +95,54 @@ logging:
   config: classpath:logback-spring.xml
   level:
     com.wabc: debug
-    org.springframework.security: debug  # 调试模式下开启Security详细日志
+    org.springframework.security: TRACE  # 调试模式下开启Security详细日志
+    com.alibaba.nacos: debug
+    org.springframework.cloud.alibaba.nacos: debug
+    org.springframework.cloud: debug
+    org.springframework.jdbc.core.JdbcTemplate: DEBUG
+jwt:
+  key:
+    private: |-
+      -----BEGIN PRIVATE KEY-----
+      MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDJanf1amCy4XQM
+      Q8XNKYabJzvhzirjwW31/Qf3lAmQh6NMofPpKX45XSWYxxETtIDNYtz8FYVv523E
+      7vkonqiy0kms0owYRqhd1/nZrLT9HlmLwYyrqan2H6MlTE4f1+HCc4gJQC+0oaSZ
+      v7b57uPI4cdLNWcmZAHEU5pVQJi6clo3Q29pbXZWXFtV/DzP+80E79oqcJGlNOSt
+      +f/y6cKAtpR79XQ/7wexPhQJ8kz7wbGKEERwJcEbtpFfBaD8FdZxAvfus6La2QPS
+      qKNNk0Zr0PQRk+COQeiUOjLOJU4d4gWGXf6S2yw97udP4VKS1glneBzPC3LRKDOX
+      p2Sz5im9AgMBAAECggEAJ24+eb8PmzVj4JrL+HQus+UkZfpUjy3o9wVIMAG9NZw4
+      LeJuu7Cx000W9SfTggYOSScXmAomi1fFN46JHJii8g8U+U5musHqaCTF9wVGkV8F
+      rMSBY4Hdkh9zcvPTP4yl18mCUj1MmZIjhS3xBlDsKwF4YJLd1LgzWFn9lr8Ep0su
+      z4uPHqTMPZCHyyAA8cb1swn/qjKFCuqo1f8zRUBed39zMwuLXQssuTECG8ulA07P
+      JjVNkco80/i3dSBfbrOeGA1gpdmtEuNfPqCRCbXwS+B6Y/1ZbGFS2hWeG/fUR6XS
+      bi3LWvb2V5Lrp5fsDmdGjUHkLIstJ7hw44QDyVKMyQKBgQDmI64sQldb6tKtyuDo
+      6ZCmwEKwBu6KB+6HGMErB7a6WKl3BcJjYwXKvVhjRFrXx8BmHgSQ3VRCro4ovCBD
+      RJhD4Ot4woTNOZE0QGjx0tt++A99sMTZQ6+71vDZB17MYsox6YQw1pxXTFzXO/vB
+      Yd6eZFtYRgxqYUlp41pGZpu5VwKBgQDgDIMhqseCfSk8nW2InvKuqymJ/XkviDXP
+      LvscbBCEtQrdzQ+e6xEwai9znnz71B0FPwWuFaK2DUWNRgl4ZIs+mzJCkfAffFF3
+      LbAyQIPH5RMbEBVGjGbaBmz7uaW9FQpL+Hi4czXTp+r9ZCg3y1aJNfHCh/i71q1p
+      VL9DyY2FCwKBgBqxDrVhaGJnxNGVUyqQVE+SwulJlIb7zoVqsJS+C0pnmBgO2fHO
+      /U/7T/ILboHSUBVH6/2lPe2R8zj0QMWsggB1aLoTzXVD9PxbcBCEBSMfwCQyyVHt
+      kMc3ca2qNit8VbkePU+wxGc3mxj3gwZ1xG0YdKOzVCNOb0ZRsRmzMuJ3AoGATleR
+      ssAIqzQgqzVRC6ioqzLmf33GVjyGtD91Rubyj7TOa+g8QhFoHUnD9eXBRj1ROHhl
+      AA5IqufRHikTPqnJlsaluGlXUWsjAU1Ugv3UFp2fJKNnDRgjDrGYghzUO12UECR9
+      8eE3PR9GJ/xRo9DSHYBjXOY2r1fNozsi9g0QEykCgYEA5dm5tLRwAlI5NnpKQ+Ik
+      foD4wsWLChUiSr6Ir6yIqrWJPGoFNtCdDuhf3t4WjFkalSmPZA/MHtRuz2IgNkHP
+      eJA5duzZjDK9bxEhpxoUjKH1vW7k4M89yIHAYACNYdtncqU09dwEElGo/Bk2Yu77
+      NgqLDt2DkbulXTI91iFrCxM=
+      -----END PRIVATE KEY-----
+    public: |-
+      -----BEGIN PUBLIC KEY-----
+      MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAyWp39WpgsuF0DEPFzSmG
+      myc74c4q48Ft9f0H95QJkIejTKHz6Sl+OV0lmMcRE7SAzWLc/BWFb+dtxO75KJ6o
+      stJJrNKMGEaoXdf52ay0/R5Zi8GMq6mp9h+jJUxOH9fhwnOICUAvtKGkmb+2+e7j
+      yOHHSzVnJmQBxFOaVUCYunJaN0NvaW12VlxbVfw8z/vNBO/aKnCRpTTkrfn/8unC
+      gLaUe/V0P+8HsT4UCfJM+8GxihBEcCXBG7aRXwWg/BXWcQL37rOi2tkD0qijTZNG
+      a9D0EZPgjkHolDoyziVOHeIFhl3+ktssPe7nT+FSktYJZ3gczwty0Sgzl6dks+Yp
+      vQIDAQAB
+      -----END PUBLIC KEY-----
+
+service:
+  internal:
+    access-key: WrY_i6l_-x-t0tM1R3x4jA
+    secret-key: X_fI-S0yo7CM7nDaJNxydWagHKhzLEDFC7noquIm8N4

@@ -1,5 +1,5 @@
 server:
-  port: 8888
+  port: 10000
   servlet:
     context-path: /gateway  # 统一上下文路径
 # =================== Nacos配置 =======================
@@ -11,12 +11,12 @@ spring:
       # 服务注册与发现
       discovery:
         server-addr: 192.168.182.131:8848
-        namespace: wabc
-        group: DEFAULT_GROUP
+        # 不写 group，默认就是 DEFAULT_GROU
+        namespace: 028ef566-8810-487a-8c5d-9fbc8717ba63  # wabc命名空间id, 环境隔离
         # 动态配置管理,获取配置，至少需要配置gatewway.yml文件
       config:
         server-addr: 192.168.182.131:8848
-        namespace: wabc  #  续写group默认为  group: DEFAULT_GROUP
+        namespace: 028ef566-8810-487a-8c5d-9fbc8717ba63  # wabc命名空间id, 环境隔离
         file-extension: yaml
         refresh-enabled: true
 # ================== Gateway核心配置 ==================

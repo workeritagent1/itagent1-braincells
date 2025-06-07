@@ -210,3 +210,113 @@ sys_user", "sys_role", "sys_dept", "sys_user_role", "sys_menu", "sys_role_menu",
 yml文件中有nacos config配置时，需要在nacos至少配置空文件，否则会报错。
 wabc  gateway.yml
 ```
+
+## 生成私钥
+```
+生成私钥：
+openssl genpkey -algorithm RSA -out private_key.pem -pkeyopt rsa_keygen_bits:2048
+生成公钥：
+openssl rsa -in private_key.pem -pubout -out public_key.pem
+用文本编辑器获取内容，安全管理！
+```
+
+##  oauth2.1标准表，名称不要修改
+```
+标准表结构下载地址 oauth2_registered_client，oauth2_authorization，oauth2_authorization_consent 
+https://github.com/spring-projects/spring-authorization-server/blob/main/oauth2-authorization-server/src/main/resources/org/springframework/security/oauth2/server/authorization/client/oauth2-registered-client-schema.sql
+
+```
+
+## 用户登录认证标准逻辑理解。
+```
+auth登录流程必须强制HTTPS,后期优化
+最直白的登录认证授权流程
+1. 用户操作流程
+用户访问你的Vue后台管理页面（比如 http://localhost:8080/）。
+发现没登录，页面上有个“登录”按钮。
+用户点“登录”，页面会自动跳到公司的认证中心（比如http://auth.xxx.com/login）。
+用户在认证中心页面输入账号、密码。
+认证通过后，会自动跳回你的Vue页面（带着一个授权码code参数）。
+Vue这时候用这个code参数，和之前浏览器里保存的PKCE校验码，一起发请求（POST）给认证中心，换“令牌token”。
+Vue拿到token（JWT格式）后，保存起来，以后请求别的接口都带着这个token。
+
+标准做法是让用户只在认证中心页面登录（login.html），其他页面没有表单，前端只是跳转跳板。
+全世界大部分中大型系统已经是这种体验，并不会让用户疑惑。
+
+传统体验：
+[页面有账号/密码表单]
+  |
+[输入/登录]
+  |
+[进入系统]
+OAuth2.1标准体验（你现在的方案）：
+[页面只有“登录”按钮]
+  |
+[用户点击→自动跳转到官方认证中心地址]
+  |
+[这里才显示账号/密码/登录按钮]
+  |
+[输入后→自动跳回后台页面/主界面]
+
+对于与传统的差异问题：
+方案A：严守安全最佳实践，兼顾用户体验（行业主流）
+UI/UX风格尽可能统一
+让认证中心（login.html/认证服务login.vue）页面风格高度接近管理后台，保证跳转时视觉一致性，让用户直观感受“你还是在自己的系统”。
+跳转时加友好提示，让用户清晰知道：“正在安全登录/这是公司官方登录平台”
+登录按钮旁可标注：“将跳转到公司认证中心登录，保障账号安全”
+
+```
+
+## 认证、授权含义解释
+```
+认证：auth模块指定的登录页面输账号密码 → 查sys_user → 比对密码对就=认证通过。
+授权：认证后/oauth2/authorize用户点“同意” → SAS生成code，并记入授权表 → 回跳原站。
+
+ 授权的两个概念：
+ OAuth2.1 的“授权”（/oauth2/authorize）和后台“菜单按钮权限”是完全不同的两个授权场景，逻辑实现和关注点完全不同。
+ 1. /oauth2/authorize 的“授权”
+ 位置：认证中心（auth模块）
+ 作用：让用户“同意”前端应用获取自己身份，生成授权码/令牌
+ 级别：授权“应用”能代表你访问数据
+ 知识点：只管谁登录、允许哪些scope，比如 openid/profile，不管功能细节
+ 2. 菜单按钮权限（RBAC“授权”）
+ 位置：业务后端（system模块）
+ 作用：用户“能否访问后台具体功能/菜单/按钮”，即：页面/按钮/接口级权限精细控制
+ 级别：授权“用户”能执行什么具体操作
+ 知识点：通过JWT里的userId、roleId，查RBAC表（sys_user、sys_role、sys_menu、sys_role_menu等）
+```
+##  auth 模块的用户信息查询通过feign调用system;
+```
+
+内部微服务间调用涉及到四个类：
+ 1. FeignClient
+ 2.InternalApiSigner
+ 3.InternalApiAuthFilter
+ 4.FeignConfig
+```
+
+## 各模块端口
+```
+gateway 10000
+auth 10001
+system 10002
+```
+
+## html示例
+```
+二、核心逻辑流程
+1. 用户访问 index.html
+点击“登录”，生成 PKCE 参数，跳转 /oauth2/authorize，走授权码流程。
+2. 未认证用户自动跳转 login.html
+Spring Security 拦截，跳转 /login.html，用户输入账号密码。
+3. 登录成功跳回 callback.html
+携带授权码 code、state。
+4. callback.html 用 code + PKCE 交换 token
+通过 /oauth2/token POST 换取 access_token 和 id_token，完成登录。
+5. 后续可用 access_token 访问 gateway/system 等API，网关负责JWT校验、权限路由。
+==============================
+示例：
+1.index.html首页点击【登录】发起oauth2/authorize请求，引导跳转到auth模块的login.html
+2.login.html页面输入用户密码登录；login后端接口根据登录情况返回授权页面，点击授权
+2.
+```

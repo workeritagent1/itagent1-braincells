@@ -80,6 +80,11 @@
          nimbus-jose-jwt
      -->
         <!-- OAuth2服务、OIDC/JWT -->
+        <!-- JWT 验证（资源服务器） -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
+        </dependency>
         <!-- Spring Security: 认证授权配置 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

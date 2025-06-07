@@ -54,7 +54,11 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
-
+       <!-- &lt;!&ndash; Spring Session + Redis 集成，微服务之间共享session状态&ndash;&gt;
+        <dependency>
+            <groupId>org.springframework.session</groupId>
+            <artifactId>spring-session-data-redis</artifactId>
+        </dependency>-->
         <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-boot-starter</artifactId>
@@ -116,6 +120,11 @@
             <artifactId>spring-cloud-starter-openfeign</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-loadbalancer</artifactId>
+        </dependency>
+
         <!-- Nacos: 配置中心注册发现 -->
         <dependency>
             <groupId>com.alibaba.cloud</groupId>
@@ -128,6 +137,11 @@
 
         <!-- 日志 SLF4J/Logback（springboot默认） -->
 
+        <!-- 操作AuthorizationServerConfig.jdbcdatasource连接数据库的对象   -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jdbc</artifactId><!-- 操作DB -->
+        </dependency>
 
     </dependencies>
 

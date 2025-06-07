@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8" />
+    <title>登录回调</title>
+</head>
+<body>
+<h1>    callback.html（登录成功回调页，前端获取code交换access_token，存入本地）</h1>
+<h3 id="msg">正在登录...</h3>
+<script>
+    (async function() {
+        const params = new URLSearchParams(location.search);
+        const code = params.get("code");
+        const state = params.get("state");
+        const codeVerifier = sessionStorage.getItem("pkce_code_verifier");
+        if(!code) { document.getElementById("msg").textContent = "授权失败，无code"; return; }
+        // 换取 access_token
+        const data = new URLSearchParams({
+            grant_type: "authorization_code",
+            client_id: "demo-client",
+            code: code,
+            redirect_uri: "http://localhost:10001/auth/callback.html",
+            code_verifier: codeVerifier,
+        });
+        let resp = await fetch("http://localhost:10001/auth/oauth2/token", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: data.toString()
+        });
+        if (resp.ok) {
+            const json = await resp.json();
+            localStorage.setItem("access_token", json.access_token);
+            localStorage.setItem("id_token", json.id_token || "");
+            document.getElementById("msg").textContent = "登录成功，access_token:" + json.access_token;
+            // 后续可发起API请求
+        } else {
+            document.getElementById("msg").textContent = "token获取失败: "+resp.status;
+        }
+    })();
+</script>
+</body>
+</html>

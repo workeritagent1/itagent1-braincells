@@ -56,7 +56,9 @@
         <mysql.version>8.0.33</mysql.version>
         <!-- spring Boot2 默认集成数据库连接池HikariCP；零配置开箱即用，减少维护成本 -->
 
+        <spring.session.version>3.3.0</spring.session.version>
         <redisson.version>3.17.7</redisson.version>
+
 
         <mybatis-plus.version>3.5.3.1</mybatis-plus.version>
 
@@ -90,6 +92,7 @@
         <mapstruct.version>1.5.5.Final</mapstruct.version>
 
         <commons-beanutils.version>1.9.4</commons-beanutils.version>
+        <commons-codec.version>1.15</commons-codec.version>
 
         <!-- 测试相关依赖版本 -->
         <!--spring-boot-test.version-->
@@ -187,6 +190,17 @@
                 <scope>provided</scope>
             </dependency>
 
+            <!-- Spring Session + Redis 集成，微服务之间共享session状态-->
+            <dependency>
+                <groupId>org.springframework.session</groupId>
+                <artifactId>spring-session-data-redis</artifactId>
+                <version>${spring.session.version}</version>
+            </dependency>
+
+            <!--
+                 Spring Authorization Server与Spring Boot 2.7确实存在兼容性问题，但这些问题是配置适配和功能实现层面的，而非框架核心的不兼容。
+                 经过对官方文档、社区讨论和实际项目案例的全面分析，可以确认Spring Boot 2.7与Spring Authorization Server 0.3.1、0.4.2等版本可以组合使用
+            -->
             <!-- oauth2.1
                 以下四组依赖包含在上文spring-boot-dependencies中；父项目此处无需声明版本；子项目按需直接引入坐标取用，
                 0.Spring Security（认证、鉴权安全框架基础）； 虽然client,server会默认也引入，
@@ -205,6 +219,12 @@
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-oauth2-authorization-server</artifactId>
                 <version>${spring-security-oauth2-authorization-server.version}</version> <!-- 0.4.x 是兼容 Spring Boot 2.7.x 的稳定版本，确保选择对应你的Spring Boot版本 -->
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.springframework.security</groupId>
+                        <artifactId>spring-security-cas</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <!-- JWT工具依赖
             nimbus-jose-jwt是Spring Security/Spring Authorization Server内置推荐、主流库；
@@ -287,6 +307,13 @@
                 <artifactId>commons-beanutils</artifactId>
                 <version>${commons-beanutils.version}</version>
             </dependency>
+            <!-- 签名、加解密 -->
+            <dependency>
+                <groupId>commons-codec</groupId>
+                <artifactId>commons-codec</artifactId>
+                <!-- 使用属性引用版本号 -->
+                <version>${commons-codec.version}</version>
+            </dependency>
 
             <!-- 推荐的测试依赖  -->
             <!-- 测试场景映射
@@ -367,6 +394,11 @@
         <dependency>
             <groupId>commons-beanutils</groupId>
             <artifactId>commons-beanutils</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
         </dependency>
 
         <dependency>

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8" />
+    <title>用户登录</title>
+</head>
+<body>
+<h1>login.html （认证页面，位于auth模块，前后端分离也可用SPA前端）111111</h1>
+<form id="loginForm" action="/auth/login" method="post">
+    <h2>账号登录</h2>
+    <input name="username"  value="demo" placeholder="用户名"/>
+    <input name="password" type="password" value="demo123456"  placeholder="密码"/>
+    <button type="submit">登录</button>
+</form>
+<form id="smsForm" action="/login/sms" method="post">
+    <h2>短信验证码登录（自定义扩展）</h2>
+    <input name="phone" placeholder="手机号"/>
+    <input name="code" placeholder="验证码"/>
+    <button type="submit">登录</button>
+</form>
+<!-- 可扩展扫码/Google等联合认证按钮 -->
+</body>
+</html>

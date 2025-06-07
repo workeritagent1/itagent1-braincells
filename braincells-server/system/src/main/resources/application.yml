@@ -1,26 +1,34 @@
 # ==================== [服务基础配置] ====================
 server:
-  port: 9001
+  port: 10002
   servlet:
     context-path: /system  # 统一上下文路径
 spring:
   application:
     name: system
+#  config:
+#    import: nacos:application.yaml
+    # 从 Nacos 加载 auth.yaml 配置文件
+    # 这里只写data ID，其他由下边的config获取；实际开发都推荐 optional: 前缀，防止 Nacos 掉线影响本地启动。
+  config:
+    import: optional:nacos:system.yaml
   cloud:
     nacos:
       discovery:
         server-addr: 192.168.182.131:8848  # 服务注册地址
-        namespace: wabc  # 环境隔离
-        group: DEFAULT_GROUP  # 业务分组
+        # 不写 group，默认就是 DEFAULT_GROU
+        namespace: 028ef566-8810-487a-8c5d-9fbc8717ba63  # wabc命名空间id, 环境隔离
       config:
         server-addr: 192.168.182.131:8848
+        namespace: 028ef566-8810-487a-8c5d-9fbc8717ba63 # wabc命名空间id, 环境隔离
+        group: DEFAULT_GROUP
         file-extension: yaml
         refresh-enabled: true  # 启用动态刷新
 
 # ================= 数据源配置(rbac用户/权限/菜单等) ========================
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://192.168.182.131:3306/wabc?useSSL=true&useUnicode=true&characterEncoding=utf-8&serverTimezone=UTC
+    url: jdbc:mysql://192.168.182.131:3306/2025wabc?useSSL=true&useUnicode=true&characterEncoding=utf-8&serverTimezone=UTC
     username: root
     password: dev123
     hikari:
@@ -82,3 +90,10 @@ logging:
   level:
     com.wabc: debug
     org.springframework.security: debug  # 调试模式下开启Security详细日志
+    com.alibaba.nacos: debug
+    org.springframework.cloud.alibaba.nacos: debug
+    org.springframework.cloud: debug
+service:
+  internal:
+    access-key: WrY_i6l_-x-t0tM1R3x4jA
+    secret-key: X_fI-S0yo7CM7nDaJNxydWagHKhzLEDFC7noquIm8N4

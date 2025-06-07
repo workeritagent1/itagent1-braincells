@@ -1,176 +1,274 @@
 package org.wabc.auth.config;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.core.annotation.Order;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
-import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
-import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
-import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
-import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
-import org.springframework.security.oauth2.provider.ClientDetailsService;
-import org.springframework.security.oauth2.provider.CompositeTokenGranter;
-import org.springframework.security.oauth2.provider.TokenGranter;
-import org.springframework.security.oauth2.provider.token.TokenEnhancer;
-import org.springframework.security.oauth2.provider.token.TokenEnhancerChain;
-import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
-import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
-import org.springframework.security.oauth2.provider.token.store.KeyStoreKeyFactory;
+import org.springframework.security.oauth2.core.AuthorizationGrantType;
+import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
+import org.springframework.security.oauth2.server.authorization.JdbcOAuth2AuthorizationService;
+import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
+import org.springframework.security.oauth2.server.authorization.client.JdbcRegisteredClientRepository;
+import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
+import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
+import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
+import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
+import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
+import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 
-import java.security.KeyPair;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.sql.DataSource;
+import java.util.UUID;
 
 /**
- * oauth2标准规范的授权服务器，包括以下功能：
- * 1.验证第三方系统客户端或授权服务器所属系统的直接用户的身份。
- * 2.发放授权码和令牌
- * <p>
- * 执行顺序：
- * 1.configure(ClientDetailsServiceConfigurer clients)
- * 2.configure(AuthorizationServerSecurityConfigurer security)
- * 3.configure(AuthorizationServerEndpointsConfigurer endpoints)
- *
- * @author wabc
- * @version 1.0
- * @since 2023-12-30
+ * OAuth 2.1 授权服务器核心配置
+ * - 强制 PKCE
+ * - OIDC 支持
+ * - 客户端与授权信息 JDBC 持久化（数据库表 oauth2_registered_client、oauth2_authorization）
+ * 当前maven是老版本，新版代码可参考
+ * https://docs.spring.io/spring-authorization-server/reference/getting-started.html
  */
 @Configuration
-@EnableAuthorizationServer
-@Slf4j
-public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdapter {
-    @Autowired
-    private AuthenticationManager authenticationManager;
-
-    // 管理客户端应用程序的信息和凭据
-    @Autowired
-    @Qualifier("ClientDetailsServiceImpl")
-    private ClientDetailsService clientDetailsService;
-
+@EnableWebSecurity
+@RequiredArgsConstructor
+public class AuthorizationServerConfig {
+    private static final Logger log = LoggerFactory.getLogger(AuthorizationServerConfig.class);
+    private final CustomAuthenticationProvider customAuthenticationProvider;
+    private final PasswordEncoder passwordEncoder;
 
     /**
-     * 来自于 WebSecurityConfig注入的PasswordEncoder.bean
-     * ClientDetails客户端密码加密器。当授权服务器验证客户端时，会使用注入的密码加密器对客户端提交的密码进行加密，并与从数据库加载的已加密密码进行比对。
-     * 如果密码匹配成功，则客户端验证通过。
+     *  // 1. OAuth2核心端点安全链（最高优先级）
+     * 这一段定义只保护OAuth2端点，包括/oauth2/authorize、/oauth2/token、/oauth2/jwks和OIDC等所有规范端点。
+     * 用于保证只有认证用户才能访问这些授权相关接口。
+     * @param http
+     * @return
+     * @throws Exception
      */
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    @Bean
+    @Order(1)
+    public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
+        OAuth2AuthorizationServerConfigurer authorizationServerConfigurer = new OAuth2AuthorizationServerConfigurer();
 
-    /**
-     * 配置客户端信息
-     */
-    @Override
-    public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
-        clients.withClientDetails(clientDetailsService);
-    }
+        // 启用OpenID Connect协议支持（OIDC必须在业务现代架构下开启）
+        authorizationServerConfigurer.oidc(Customizer.withDefaults());
 
-    /**
-     * 允许ClientSecret明文方式保存并且可以通过表单提交
-     */
-    @Override
-    public void configure(AuthorizationServerSecurityConfigurer security) throws Exception {
-        // 1.允许客户表单认证,不加的话/oauth/token无法访问
-        // 对于CheckEndpoint控制器[框架自带的校验]的/oauth/token端点允许所有客户端发送器请求而不会被Spring-security拦截
-        // 开启/oauth/token_key验证端口无权限访问
-        // 要访问/oauth/check_token必须设置为permitAll()，但这样所有人都可以访问了，设为isAuthenticated()又导致访问不了，这个问题暂时没找到解决方案
-        // 开启/oauth/check_token验证端口认证权限访问
-        security.allowFormAuthenticationForClients()
-//                .tokenKeyAccess("permitAll()")
-//                .checkTokenAccess("isAuthenticated()")
-                // 客户端密码加密器(已确认)
-                .passwordEncoder(passwordEncoder);
+        // 只“拦截”所有OAuth2.1核心端点，其它不处理
+        // // 必须禁用CSRF，否则Spring Security 默认启用 CSRF 保护，所有状态变更请求（POST、PUT、DELETE 等）都需要有效的 CSRF 令牌；
+        // 未携带的请求会报403错误。
+        http.requestMatcher(authorizationServerConfigurer.getEndpointsMatcher())
+                .csrf().disable()
+                .authorizeRequests()
+                .anyRequest().authenticated() // 这些端点都得是认证用户
+                .and()
+                .exceptionHandling()
+                .authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login.html")) // 未认证跳转登录页面
+                .and()
+                .apply(authorizationServerConfigurer);
+
+        return http.build();
     }
 
 
+    //
+
     /**
-     * 配置授权服务器的端点，例如设置认证管理器、用户详情服务、访问令牌存储
+     * 2. 默认安全链（处理除OAuth2端点外所有常规请求）
+     * 新增自定义拦截规则（如放行静态资源），只需在这里改。
+     * 登录页：formLogin会自动处理/login请求。
+     * @param http
+     * @return
+     * @throws Exception
      */
-    @Override
-    public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
-        // 设置jwt内容增强
-        TokenEnhancerChain tokenEnhancerChain = new TokenEnhancerChain();
-        tokenEnhancerChain.setTokenEnhancers(Arrays.asList(tokenEnhancer(), jwtAccessTokenConverter()));
-        // 初始化所有的TokenGranter，并且类型为CompositeTokenGranter
-        List<TokenGranter> tokenGranters = getDefaultTokenGranters(endpoints);
-
-        // approvalStore(approvalStore())  影响授权码询问客户是否授权页面
-        endpoints.authenticationManager(authenticationManager)
-                .tokenGranter(new CompositeTokenGranter(tokenGranters))
-                .tokenStore(new JwtTokenStore(jwtAccessTokenConverter()))
-                .tokenEnhancer(tokenEnhancerChain)
-                .accessTokenConverter(jwtAccessTokenConverter())
-                .reuseRefreshTokens(true);
-
-        // refresh token有两种使用方式：重复使用(true)、非重复使用(false)，默认为true
-        //  1 重复使用：access token过期刷新时， refresh token过期时间未改变，仍以初次生成的时间为准
-        //  2 非重复使用：access token过期刷新时， refresh token过期时间延续，在refresh token有效期内刷新便永不失效达到无需再次登录的目的
-
+    @Bean
+    @Order(2)
+    public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .authorizeHttpRequests(auth -> auth
+                        .antMatchers(
+                                "/index.html",
+                                "/login.html",
+                                "/callback.html",
+                                "/static/**"
+                        ).permitAll()
+                        .anyRequest().authenticated())
+                .formLogin(form -> form
+                        .loginPage("/login.html")
+                        .loginProcessingUrl("/login")  //// 表单提交地址,不需要补充/auth
+                        .successHandler(authenticationSuccessHandler())   // 用你自定义的
+                        .failureHandler(authenticationFailureHandler())   // 用你自定义的
+                )
+                .csrf().disable() // // 若接口纯后端和本地静态页面可disable
+                .authenticationProvider(customAuthenticationProvider);
+        return http.build();
     }
 
+//    // 可选：用户自定义AuthenticationManager（有些场景下Authorization Server用得到）
+//    @Bean
+//    public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
+//        return http.getSharedObject(AuthenticationManagerBuilder.class)
+//                .authenticationProvider(customAuthenticationProvider)
+//                .build();
+//    }
+
+
+    @Bean
+    public SavedRequestAwareAuthenticationSuccessHandler authenticationSuccessHandler() {
+        return new SavedRequestAwareAuthenticationSuccessHandler() {
+            @Override
+            public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
+                                                Authentication authentication) throws ServletException, java.io.IOException {
+                log.info("登录成功：用户={}，请求来源IP={}",
+                        authentication.getName(),
+                        request.getRemoteAddr());
+                super.onAuthenticationSuccess(request, response, authentication);
+            }
+        };
+    }
+
+    // 它已实现了“登录失败后重定向到/login?error，自动带上异常信息”的标准流程，你要做的只是加点自定义
+    @Bean
+    public SimpleUrlAuthenticationFailureHandler authenticationFailureHandler() {
+        return new SimpleUrlAuthenticationFailureHandler() {
+            @Override
+            public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
+                                                AuthenticationException exception) throws java.io.IOException, ServletException {
+                log.warn("登录失败：用户名={}，请求来源IP={}，原因={}",
+                        request.getParameter("username"),
+                        request.getRemoteAddr(),
+                        exception.getMessage());
+                super.onAuthenticationFailure(request, response, exception);
+            }
+        };
+    }
+
+// 仅当你要完全自定义登录异常响应（如全部JSON返回），
+//    public class RestAuthenticationFailureHandler implements AuthenticationFailureHandler {
+//        @Override
+//        public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception)
+//                throws IOException, ServletException {
+//            response.setContentType("application/json;charset=UTF-8");
+//            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+//            response.getWriter().write("{\"msg\":\"登录失败，请检查账号密码！\"}");
+//        }
+//    }
 
     /**
-     * 初始化所有的TokenGranter
+     * OAuth2 客户端信息持久化Bean
+     * - 映射 oauth2_registered_client 表
+     *
+     * 只要你在 oauth2_registered_client 表的 client_settings 字段填写了
+     * {"require_proof_key":true,"require_authorization_consent":true}，就表示该客户端已开启了“强制PKCE”！
      */
-    private List<TokenGranter> getDefaultTokenGranters(AuthorizationServerEndpointsConfigurer endpoints) {
-        return new ArrayList<>(Arrays.asList(endpoints.getTokenGranter()));
-
-      /*  ClientDetailsService clientDetails = endpoints.getClientDetailsService();
-        AuthorizationServerTokenServices tokenServices = endpoints.getTokenServices();
-        AuthorizationCodeServices authorizationCodeServices = endpoints.getAuthorizationCodeServices();
-        OAuth2RequestFactory requestFactory = endpoints.getOAuth2RequestFactory();
-
-        List<TokenGranter> tokenGranters = new ArrayList<>();
-        // 处理授权码类型的令牌授权请求
-        tokenGranters.add(new AuthorizationCodeTokenGranter(tokenServices, authorizationCodeServices, clientDetails, requestFactory));
-        // 处理刷新令牌类型的令牌授权请求。
-        tokenGranters.add(new RefreshTokenGranter(tokenServices, clientDetails, requestFactory));
-        // 处理隐式授权类型的令牌授权请求。
-        tokenGranters.add(new ImplicitTokenGranter(tokenServices, clientDetails, requestFactory));
-        // 处理客户端凭据授权类型的令牌授权请求。
-        tokenGranters.add(new ClientCredentialsTokenGranter(tokenServices, clientDetails, requestFactory));
-        if (authenticationManager != null) {
-            // 处理密码授权类型的令牌授权请求。
-            tokenGranters.add(new ResourceOwnerPasswordTokenGranter(authenticationManager, tokenServices, clientDetails, requestFactory));
+    // 客户端注册持久化，表 oauth2_registered_client
+    @Bean
+    public RegisteredClientRepository registeredClientRepository(DataSource dataSource) {
+        JdbcRegisteredClientRepository repo = new JdbcRegisteredClientRepository(new JdbcTemplate(dataSource));
+        // 初始化一个client（推荐初次导入一次，在运维脚本/初始化代码里进行）
+        if(repo.findByClientId("demo-client") == null){
+            // 使用密码编码器对客户端密码进行编码
+            String encodedSecret = passwordEncoder.encode("demo123456");
+            RegisteredClient client = RegisteredClient.withId(UUID.randomUUID().toString())
+                    .clientId("demo-client")
+                    .clientSecret("") // .clientSecret(encodedSecret) // 推荐用安全加密方式  //  .clientSecret("{noop}demo123456")
+                    // // web浏览器端：一定不能设置密码和method
+                    .clientSecret("")  // 必须为空字符串，不能null（有些表结构不让null）
+                    .clientAuthenticationMethod(ClientAuthenticationMethod.NONE) // 关键！一定要加
+                    .redirectUri("http://localhost:10001/auth/callback.html")
+                    .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+                    .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
+                    .scope("openid")
+                    .scope("profile")
+                    .clientSettings(ClientSettings.builder()
+                            .requireAuthorizationConsent(true)  // 需要用户同意
+                            .requireProofKey(true) // 强制pkce
+                            .build())
+                    .build();
+            repo.save(client);
         }
-        return tokenGranters;*/
+        return repo;
     }
-
     /**
-     * 自定义的令牌增强器,充additionalInfo{}内容
+     * 授权信息存储（授权码/access_token等）
+     * - 映射 oauth2_authorization 表
      */
     @Bean
-    public TokenEnhancer tokenEnhancer() {
-        return new CustomTokenEnhancer();
+    public OAuth2AuthorizationService authorizationService(DataSource dataSource, RegisteredClientRepository registeredClientRepository) {
+        return new JdbcOAuth2AuthorizationService(new JdbcTemplate(dataSource), registeredClientRepository);
     }
 
 
     /**
-     * JWT访问令牌转换器,使用非对称密钥
+     *
+     * ProviderSettings 主要用于配置issuer（授权服务器签发方标识），
+     * 这个值对所有OAuth2 OIDC客户端和资源服务器统一且极其重要，必须在生产环境下显式配置成你的对外服务真实域名地址！
+     *
+     * 本地测试可用 http://localhost:9000，但正式环境推荐用https且是对外可识别域名。
+     * issuer和实际暴露/转发路径要一致。微服务环境下通常建议取网关暴露的外部地址。
+     * @return
      */
     @Bean
-    public JwtAccessTokenConverter jwtAccessTokenConverter() {
-        JwtAccessTokenConverter converter = new JwtAccessTokenConverter();
-        converter.setKeyPair(keyPair());
-        return converter;
+    public AuthorizationServerSettings authorizationServerSettings() {
+        return AuthorizationServerSettings.builder()
+                .issuer("http://localhost:10001/auth")   // 替换成你自己的地址
+                .build();
+
+//        .issuer("http://localhost:10001/auth")
+//                .tokenRevocationEndpoint("/oauth2/revoke") // 添加令牌撤销端点
+//                .tokenIntrospectionEndpoint("/oauth2/introspect") // 添加令牌检查端点
+//                .build();
     }
 
-    /**
-     * 密钥库中获取密钥对(公钥+私钥)
-     */
-    @Bean
-    public KeyPair keyPair() {
-        // 文件存储密码："Wabc@2023"
-        KeyStoreKeyFactory factory = new KeyStoreKeyFactory(new ClassPathResource("jwt_keystore.jks"), "Wabc@2023".toCharArray());
-        // 私钥密码
-        KeyPair keyPair = factory.getKeyPair("jwt", "Wabc@2023".toCharArray());
-        return keyPair;
-    }
+    //  SAS 0.4.4版本不支持。
+//    /**
+//     *  Spring Authorization Server（SAS） 配的专用 ObjectMapper，只影响 OAuth2Authorization
+//     *  等授权信息落库时的序列化/反序列化（通常是存oauth2_authorization这类表字段）。
+//     * @return
+//     */
+//    @Bean
+//    public ObjectMapper authzObjectMapper() {
+//        ObjectMapper objectMapper = new ObjectMapper();
+//        // 注册 SAS 官方模块，支持 OAuth2Authorization 等序列化
+//        objectMapper.registerModule(new OAuth2AuthorizationServerJackson2Module());
+//        // 时间模块支持
+//        objectMapper.registerModule(new JavaTimeModule());
+//        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+//        // （可选）如果还有其它定制，参照你自己的具体情况增加
+//        return objectMapper;
+//    }
+//
+//    // 关键：设置给 SAS 使用
+//    @Bean
+//    public OAuth2AuthorizationService authorizationService(
+//            DataSource dataSource,
+//            RegisteredClientRepository registeredClientRepository,
+//            ObjectMapper authzObjectMapper) {
+//        JdbcOAuth2AuthorizationService.OAuth2AuthorizationRowMapper rowMapper =
+//                new JdbcOAuth2AuthorizationService.OAuth2AuthorizationRowMapper(registeredClientRepository);
+//        rowMapper.setObjectMapper(authzObjectMapper);
+//        return new JdbcOAuth2AuthorizationService(new JdbcTemplate(dataSource), registeredClientRepository, rowMapper);
+//    }
 
+//    /**
+//     * 自定义Session序列化方式（JSON格式）,针对HttpSession对象在Redis里的读写；避免JDK序列化带来未来不可控bug;
+//     */
+//    @Bean
+//    public RedisSerializer<Object> springSessionDefaultRedisSerializer() {
+//        return new GenericJackson2JsonRedisSerializer();
+//    }
 
+    // 关于 JWKSource/JwtEncoder/JwtDecoder 相关 Bean，来自于JwtKeyConfig
 }

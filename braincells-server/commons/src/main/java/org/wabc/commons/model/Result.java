@@ -25,6 +25,9 @@ public class Result<T> {
     @Schema(description = "返回数据内容，结构根据实际接口变化，分页时为分页对象", requiredMode = Schema.RequiredMode.NOT_REQUIRED, implementation = Object.class)
     private T data;
 
+    // 关键：加上默认无参构造方法，否则Jackson（SpringCloud OpenFeign后端默认序列化方式）无法反序列化Result对象，
+    public Result() {}
+
     private Result(int code, String message, T data) {
         this.code = code;
         this.message = message;
