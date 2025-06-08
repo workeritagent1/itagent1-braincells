@@ -302,24 +302,6 @@ auth 10001
 system 10002
 ```
 
-## html示例
-```
-二、核心逻辑流程
-1. 用户访问 index.html
-点击“登录”，生成 PKCE 参数，跳转 /oauth2/authorize，走授权码流程。
-2. 未认证用户自动跳转 login.html
-Spring Security 拦截，跳转 /login.html，用户输入账号密码。
-3. 登录成功跳回 callback.html
-携带授权码 code、state。
-4. callback.html 用 code + PKCE 交换 token
-通过 /oauth2/token POST 换取 access_token 和 id_token，完成登录。
-5. 后续可用 access_token 访问 gateway/system 等API，网关负责JWT校验、权限路由。
-==============================
-示例：
-1.index.html首页点击【登录】发起oauth2/authorize请求，引导跳转到auth模块的login.html
-2.login.html页面输入用户密码登录；login后端接口根据登录情况返回授权页面，点击授权
-2.
-```
 ## auth+system模块 oauth2.1认证授权方案基于静态html页面完成
 ```
 auth+system模块 oauth2.1认证授权方案；使用Spring Authorization Server + OAuth 2.1 + OpenID Connect (OIDC) + JWT; 基于auth../resource/static下的静态html页面的授权认证模式完成。
@@ -359,6 +341,7 @@ auth+system模块 oauth2.1认证授权方案；使用Spring Authorization Server
 
 部分源码逻辑参考：OAuth2AuthorizationEndpointFilter的doFilterInternal方法中	
 ```
+
 ## html-demo情况和Spring Session Redis实现session共享说明：
 ```
 1.如果是浏览器端作为oauth2_registered_client，用户登录，oauth2_registered_client表不能设置密码；

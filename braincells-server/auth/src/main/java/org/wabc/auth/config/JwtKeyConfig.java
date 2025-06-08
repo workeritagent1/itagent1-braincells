@@ -68,6 +68,13 @@ public class JwtKeyConfig {
         }
     }
 
+    // JWKSet端点 /oauth2/jwks 获取授权服务器公钥（JWKS）用于JWT验签
+    // http://localhost:10001/auth/oauth2/jwks
+
+    /**
+     * Spring Authorization Server 会自动实现 /oauth2/jwks 端点，
+     * 无需手动创建控制器。端点会返回 JWK Set（JSON Web Key Set），包含授权服务器的公钥信息。
+     */
     @Bean
     public JWKSource<SecurityContext> jwkSource(KeyPair keyPair) {
         RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();

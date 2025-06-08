@@ -232,35 +232,7 @@ public class AuthorizationServerConfig {
 //                .build();
     }
 
-    //  SAS 0.4.4版本不支持。
-//    /**
-//     *  Spring Authorization Server（SAS） 配的专用 ObjectMapper，只影响 OAuth2Authorization
-//     *  等授权信息落库时的序列化/反序列化（通常是存oauth2_authorization这类表字段）。
-//     * @return
-//     */
-//    @Bean
-//    public ObjectMapper authzObjectMapper() {
-//        ObjectMapper objectMapper = new ObjectMapper();
-//        // 注册 SAS 官方模块，支持 OAuth2Authorization 等序列化
-//        objectMapper.registerModule(new OAuth2AuthorizationServerJackson2Module());
-//        // 时间模块支持
-//        objectMapper.registerModule(new JavaTimeModule());
-//        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-//        // （可选）如果还有其它定制，参照你自己的具体情况增加
-//        return objectMapper;
-//    }
-//
-//    // 关键：设置给 SAS 使用
-//    @Bean
-//    public OAuth2AuthorizationService authorizationService(
-//            DataSource dataSource,
-//            RegisteredClientRepository registeredClientRepository,
-//            ObjectMapper authzObjectMapper) {
-//        JdbcOAuth2AuthorizationService.OAuth2AuthorizationRowMapper rowMapper =
-//                new JdbcOAuth2AuthorizationService.OAuth2AuthorizationRowMapper(registeredClientRepository);
-//        rowMapper.setObjectMapper(authzObjectMapper);
-//        return new JdbcOAuth2AuthorizationService(new JdbcTemplate(dataSource), registeredClientRepository, rowMapper);
-//    }
+
 
     /**
      * 自定义Session序列化方式（JSON格式）,针对HttpSession对象在Redis里的读写；避免JDK序列化带来未来不可控bug;
