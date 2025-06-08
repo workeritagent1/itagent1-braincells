@@ -7,8 +7,6 @@ import org.wabc.system.dto.SysRolePageDTO;
 import org.wabc.system.entity.SysRole;
 import org.wabc.system.vo.SysRoleVO;
 
-import java.util.List;
-
 /**
  * 角色表业务接口
  *
@@ -51,11 +49,4 @@ public interface SysRoleService extends IService<SysRole> {
      */
     SysRoleVO detail(Long id);
 
-    /**
-     * 根据用户ID获取角色列表
-     *
-     * @param userId 用户ID
-     * @return 角色标识列表
-     */
-    public List<String> getRolesByUserId(Long userId) ;
 }

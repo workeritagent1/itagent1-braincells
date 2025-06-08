@@ -2,7 +2,6 @@ package org.wabc.system.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.wabc.commons.model.PageResult;
-import org.wabc.commons.model.AuthUserDetails;
 import org.wabc.system.dto.SysUserDTO;
 import org.wabc.system.dto.SysUserPageDTO;
 import org.wabc.system.entity.SysUser;
@@ -50,8 +49,4 @@ public interface SysUserService extends IService<SysUser> {
      */
     SysUserVO detail(Long id);
 
-    /**
-     * 根据用户名查询用于认证的数据（如密码、角色等）
-     */
-    AuthUserDetails getAuthUserInfo(String username);
 }

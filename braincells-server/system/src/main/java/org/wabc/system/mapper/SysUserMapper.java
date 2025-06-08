@@ -15,17 +15,5 @@ import org.wabc.system.entity.SysUser;
 @Mapper
 public interface SysUserMapper extends BaseMapper<SysUser> {
 
-    /**
-     * 根据用户名查询用户信息
-     * 属性没有： account_non_expired, account_non_locked,credentials_non_expired, enabled,
-     * @param username 用户名
-     * @return 用户实体
-     */
-    @Select("SELECT " +
-            "id, username, password, nickname, email, phone, status " +
-            "FROM sys_user " +
-            "WHERE username = #{username} " +
-            "AND deleted = 0")
-    SysUser selectByUsername(@Param("username") String username);
 
 }

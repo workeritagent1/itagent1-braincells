@@ -4,9 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.wabc.commons.model.PageResult;
-import org.wabc.commons.model.AuthUserDetails;
 import org.wabc.system.converter.SysUserConverter;
 import org.wabc.system.dto.SysUserDTO;
 import org.wabc.system.dto.SysUserPageDTO;
@@ -16,8 +14,6 @@ import org.wabc.system.service.SysRoleService;
 import org.wabc.system.service.SysUserService;
 import org.wabc.system.vo.SysUserVO;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.stream.Collectors;
 /**
  * 系统用户表业务实现
@@ -100,38 +96,5 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     public SysUserVO detail(Long id) {
         SysUser entity = getById(id);
         return entity != null ? SysUserConverter.INSTANCE.entityToVo(entity) : null;
-    }
-
-
-
-
-    @Override
-    @Transactional(readOnly = true)
-    public AuthUserDetails getAuthUserInfo(String username) {
-        // 1. 查询用户基本信息
-        SysUser user = sysUserMapper.selectByUsername(username);
-        if (user == null) {
-            return null;
-        }
-
-        // 2. 查询用户角色信息（通过角色服务）
-        List<String> roles = sysRoleService.getRolesByUserId(user.getId());
-
-        // 3. 构建认证信息对象
-        return convertToAuthInfo(user, roles);
-    }
-
-    private AuthUserDetails convertToAuthInfo(SysUser user, List<String> roles) {
-        AuthUserDetails authInfo = new AuthUserDetails();
-        authInfo.setId(user.getId());
-        authInfo.setUsername(user.getUsername());
-        authInfo.setPassword(user.getPassword());
-        authInfo.setStatus(user.getStatus());
-        authInfo.setAccountNonExpired(true);
-        authInfo.setAccountNonLocked(true);
-        authInfo.setCredentialsNonExpired(true);
-        authInfo.setEnabled(true);
-        authInfo.setRoles(roles != null ? roles : Collections.emptyList());
-        return authInfo;
     }
 }

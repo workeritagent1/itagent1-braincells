@@ -16,16 +16,5 @@ import java.util.List;
  */
 @Mapper
 public interface SysRoleMapper extends BaseMapper<SysRole> {
-    /**
-     * 根据用户ID查询角色标识列表
-     *
-     * @param userId 用户ID
-     * @return 角色标识列表
-     */
-    @Select("SELECT r.code " +
-            "FROM sys_role r " +
-            "INNER JOIN sys_user_role ur ON r.id = ur.role_id " +
-            "WHERE ur.user_id = #{userId} " +
-            "AND r.deleted = 0")
-    List<String> selectRoleCodesByUserId(@Param("userId") Long userId);
+
 }

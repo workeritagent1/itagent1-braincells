@@ -1,39 +1,57 @@
 package org.wabc.auth.service;
 
-import cn.hutool.json.JSONUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import org.wabc.auth.config.SystemFeignClient;
-import org.wabc.commons.model.Result;
-import org.wabc.commons.model.ResultCode;
-import org.wabc.commons.model.AuthUserDetails;
+import org.wabc.auth.entity.SysUser;
+import org.wabc.auth.mapper.SysRoleMapper;
+import org.wabc.auth.mapper.SysUserMapper;
+import org.wabc.auth.model.AuthUserDetails;
+
+import java.util.Collections;
+import java.util.List;
 
 /**
  * 自定义用户详情服务
  */
 @Service
-@RequiredArgsConstructor
+@RequiredArgsConstructor  // 有了 @RequiredArgsConstructor，不要再手写构造器，Spring自动注入所有final字段
 public class CustomUserDetailsService implements UserDetailsService {
-    private final SystemFeignClient systemFeignClient;
+
+    private final SysUserMapper sysUserMapper;
+    // 注意防止循环依赖
+    private final SysRoleMapper sysRoleMapper;
 
     @Override
     public UserDetails loadUserByUsername(String username)
             throws UsernameNotFoundException {
 
-        Result<String> result = systemFeignClient.getByUsername(username);
-
-        AuthUserDetails authUserDetails = null;
-        if(ResultCode.SUCCESS.code()==result.getCode()){
-            authUserDetails = JSONUtil.toBean(result.getData(), AuthUserDetails.class);
+        // 1. 查询用户基本信息
+        SysUser user = sysUserMapper.selectByUsername(username);
+        if (user == null) {
+            return null;
         }
 
-        if (authUserDetails == null) {
-            throw new UsernameNotFoundException("用户不存在: " + username);
-        }
+        // 2. 查询用户角色信息（通过角色服务）
+        List<String> roles = sysRoleMapper.selectRoleCodesByUserId(user.getId());
 
-        return authUserDetails;
+        // 3. 构建认证信息对象
+        return convertToAuthInfo(user, roles);
+    }
+
+    private AuthUserDetails convertToAuthInfo(SysUser user, List<String> roles) {
+        AuthUserDetails authInfo = new AuthUserDetails();
+        authInfo.setId(user.getId());
+        authInfo.setUsername(user.getUsername());
+        authInfo.setPassword(user.getPassword());
+        authInfo.setStatus(user.getStatus());
+        authInfo.setAccountNonExpired(true);
+        authInfo.setAccountNonLocked(true);
+        authInfo.setCredentialsNonExpired(true);
+        authInfo.setEnabled(true);
+        authInfo.setRoles(roles != null ? roles : Collections.emptyList());
+        return authInfo;
     }
 }

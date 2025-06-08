@@ -91,13 +91,5 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
         return entity != null ? SysRoleConverter.INSTANCE.entityToVo(entity) : null;
     }
 
-    /**
-     * 根据用户ID获取角色列表
-     *
-     * @param userId 用户ID
-     * @return 角色标识列表
-     */
-    public List<String> getRolesByUserId(Long userId) {
-        return sysRoleMapper.selectRoleCodesByUserId(userId);
-    }
+
 }

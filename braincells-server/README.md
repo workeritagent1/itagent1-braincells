@@ -401,7 +401,8 @@ auth+system模块 oauth2.1认证授权方案；使用Spring Authorization Server
   
 4.注意将来强制扩展成https
 5.auth模块包括entity:sysuser,sysrole,sysuserrole;虽然有点与system重复；但是为了内聚auth用户认证授权的逻辑；这样只增加了loadUserByName,和根据user查roles的极少量数据查询逻辑；方案很好。
-
+ 并且有简单的@select注解的sql，mybatis-plus不需要配置xml；
+ 
 session状态共享示例：
 同一个浏览器：
 页面1： http://localhost:10001/auth/login.html  

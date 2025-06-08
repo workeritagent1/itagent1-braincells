@@ -1,6 +1,5 @@
 package org.wabc.system.controller;
 
-import cn.hutool.json.JSONUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -8,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.wabc.commons.model.PageResult;
 import org.wabc.commons.model.Result;
-import org.wabc.commons.model.AuthUserDetails;
 import org.wabc.system.dto.SysUserDTO;
 import org.wabc.system.dto.SysUserPageDTO;
 import org.wabc.system.service.SysUserService;
@@ -71,13 +69,4 @@ public class SysUserController {
         return Result.success(sysUserService.detail(id));
     }
 
-    @GetMapping("/auth-user-info")
-    public Result<String> getAuthUserInfo(@RequestParam("username") String username) {
-
-        AuthUserDetails authUserInfo = sysUserService.getAuthUserInfo(username);
-        // 返回string类型，防止对端服务序列化异常。
-        String data = JSONUtil.toJsonStr(authUserInfo);
-        return authUserInfo == null ? Result.fail("用户不存在") :  Result.success(data);
-
-    }
 }
